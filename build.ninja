@@ -1,0 +1,6 @@
+cflags = -Wall -Wextra -Werror
+
+rule cc
+  command = clang++ $cflags $in -o $out
+
+build main: cc main.cpp
