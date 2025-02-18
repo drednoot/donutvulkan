@@ -11,10 +11,11 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 # Add executable
 add_executable(donutcpp
     main.cpp
+    renderer.cpp
 )
 
 # Include directories
-# target_include_directories(MyApp PRIVATE include)
+target_include_directories(donutcpp PRIVATE .)
 
 # Optional: Link libraries
 # target_link_libraries(MyApp PRIVATE some_library)
