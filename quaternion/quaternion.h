@@ -1,0 +1,6 @@
+#ifndef QUATERNION_QUATERNION_H_
+#define QUATERNION_QUATERNION_H_
+
+double test();
+
+#endif  // QUATERNION_QUATERNION_H_

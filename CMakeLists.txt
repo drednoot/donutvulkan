@@ -17,8 +17,14 @@ add_executable(donutcpp
     renderer.cpp
 )
 
+add_subdirectory(quaternion)
+add_dependencies(donutcpp quaternion)
+
 # Include directories
 target_include_directories(donutcpp PRIVATE .)
 
-# Optional: Link libraries
-target_link_libraries(donutcpp PRIVATE m)
+target_link_libraries(donutcpp
+  PRIVATE
+  quaternion
+  m
+)

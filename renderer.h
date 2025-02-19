@@ -9,6 +9,9 @@ class Renderer : public AbstractRenderer {
 
  protected:
   virtual void Render(double delta);
+
+ private:
+  double coord_;
 };
 
 #endif  // DONUTCPP_RENDERER_H_
