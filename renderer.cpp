@@ -12,6 +12,8 @@
 Renderer::Renderer()
     : width_(0),
       height_(0),
+      screen_ratio_(0.0),
+      char_ratio_(0.5),
       target_ns_(std::chrono::nanoseconds(std::chrono::seconds(1)) /
                  config::kTargetFps) {
   winsize w;
@@ -20,6 +22,8 @@ Renderer::Renderer()
   width_ = w.ws_col;
   height_ = w.ws_row;
   buffer_.resize(width_ * height_);
+
+  screen_ratio_ = width_ / (double)height_;
 }
 
 void Renderer::Start() {
@@ -52,15 +56,24 @@ void Renderer::Clear() {
 }
 
 void Renderer::Render(std::chrono::nanoseconds delta) {
-  std::string delta_num = std::to_string(delta.count());
+  const double r = 0.05;
 
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
-      double x_norm = x / (double)width_;
-      double y_norm = y / (double)height_;
+      const double x_norm = ToAspect(x / (double)width_);
+      const double y_norm = y / (double)height_;
 
-      if (x_norm * x_norm + y_norm * y_norm <= 1.0) {
+      const double x0 = x_norm - 0.5;
+      const double y0 = y_norm - 0.5;
+
+      if (x0 * x0 + y0 * y0 <= r * r) {
         buffer_[Xy(x, y)] = '@';
+      }
+      if (x_norm >= 1) {
+        buffer_[Xy(x, y)] = '>';
+      }
+      if (y_norm >= 1) {
+        buffer_[Xy(x, y)] = 'v';
       }
     }
   }

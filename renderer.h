@@ -22,10 +22,15 @@ class Renderer {
   }  // converts x and y to buffer index
   inline int Right() { return width_ - 1; }  // returns rightmost "pixel"
   inline int Bot() { return height_ - 1; }   // returns bottommost "pixel"
+  inline double ToAspect(double val) {
+    return val * screen_ratio_ * char_ratio_;
+  }
 
   std::vector<char> buffer_;
   int width_;
   int height_;
+  double screen_ratio_;
+  double char_ratio_;
 
   std::chrono::nanoseconds target_ns_;
   std::chrono::nanoseconds time_since_start_;
