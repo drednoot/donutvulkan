@@ -18,4 +18,4 @@ add_executable(donutcpp
 target_include_directories(donutcpp PRIVATE .)
 
 # Optional: Link libraries
-# target_link_libraries(MyApp PRIVATE some_library)
+target_link_libraries(donutcpp PRIVATE m)
