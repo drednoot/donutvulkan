@@ -33,10 +33,10 @@ void Renderer::Start() {
   while (live_frames >= 0) {
     std::chrono::time_point before_render = std::chrono::system_clock::now();
     Render(delta);
+    DrawBuffer();
     std::chrono::time_point after_render = std::chrono::system_clock::now();
     delta = after_render - before_render;
 
-    DrawBuffer();
     if (delta < target_ns_) {
       std::this_thread::sleep_for(target_ns_ - delta);
     }
@@ -54,8 +54,15 @@ void Renderer::Clear() {
 void Renderer::Render(std::chrono::nanoseconds delta) {
   std::string delta_num = std::to_string(delta.count());
 
-  for (int i = 0; i < delta_num.size(); ++i) {
-    buffer_[Xy(i, Bot())] = delta_num[i];
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      double x_norm = x / (double)width_;
+      double y_norm = y / (double)height_;
+
+      if (x_norm * x_norm + y_norm * y_norm <= 1.0) {
+        buffer_[Xy(x, y)] = '@';
+      }
+    }
   }
 }
 
