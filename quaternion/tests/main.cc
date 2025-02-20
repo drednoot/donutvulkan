@@ -112,6 +112,28 @@ TEST_CASE("Normalized (non-const method) Vec3") {
   CHECK_EQ(norm.z, doctest::Approx(0.707107));
 }
 
+TEST_CASE("Vec3 Add (const method)") {
+  const Vec3 v{3.0, 4.0, 5.0};
+  const Vec3 u{5.0, 7.0, 9.0};
+
+  const Vec3 result = v + u;
+
+  CHECK_EQ(result.x, doctest::Approx(v.x + u.x));
+  CHECK_EQ(result.y, doctest::Approx(v.y + u.y));
+  CHECK_EQ(result.z, doctest::Approx(v.z + u.z));
+}
+
+TEST_CASE("Vec3 Add (non-const method)") {
+  Vec3 v{3.0, 4.0, 5.0};
+  const Vec3 u{5.0, 7.0, 9.0};
+
+  v += u;
+
+  CHECK_EQ(v.x, doctest::Approx(8.0));
+  CHECK_EQ(v.y, doctest::Approx(11.0));
+  CHECK_EQ(v.z, doctest::Approx(14.0));
+}
+
 TEST_CASE("Rotate Simple") {
   const Vec3 point{2.0, 1.0, 3.0};
   const Vec3 x_axis{1.0, 0.0, 0.0};
@@ -122,4 +144,24 @@ TEST_CASE("Rotate Simple") {
   CHECK_EQ(rotated.x, doctest::Approx(2.0));
   CHECK_EQ(rotated.y, doctest::Approx(-3.0));
   CHECK_EQ(rotated.z, doctest::Approx(1.0));
+}
+
+TEST_CASE("Zero vector normalize") {
+  Vec3 v{0, 0, 0};
+
+  v.Normalize();
+
+  CHECK_FALSE(v.IsValid());
+}
+
+TEST_CASE("Rotate on zeroth Axis") {
+  Vec3 p{1, 2, 3};
+  Vec3 axis{0, 0, 0};
+  double theta = pi / 2.0;
+
+  const Vec3& rotated = Rotate(p, axis, theta);
+
+  CHECK_EQ(rotated.x, doctest::Approx(p.x));
+  CHECK_EQ(rotated.y, doctest::Approx(p.y));
+  CHECK_EQ(rotated.z, doctest::Approx(p.z));
 }

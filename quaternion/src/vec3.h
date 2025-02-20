@@ -20,6 +20,19 @@ struct Vec3 {
     };
   };
   inline void Normalize() { *this = Normalized(); }
+
+  inline Vec3 operator+(const Vec3& other) const {
+    return {x + other.x, y + other.y, z + other.z};
+  }
+  inline Vec3& operator+=(const Vec3& other) {
+    *this = *this + other;
+    return *this;
+  }
+
+  inline bool IsValid() const {
+    return !(std::isnan(x) || std::isinf(x) || std::isnan(y) || std::isinf(y) ||
+             std::isnan(z) || std::isinf(z));
+  }
 };
 
 }  // namespace quat

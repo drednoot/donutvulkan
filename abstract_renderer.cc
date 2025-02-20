@@ -58,6 +58,19 @@ void AbstractRenderer::Clear() {
   }
 }
 
+void AbstractRenderer::Put(double x, double y, char sym) {
+  int x_denorm = (int)(x * width_);
+  if (x_denorm < 0 || x_denorm > Right()) {
+    return;
+  }
+  int y_denorm = (int)(y * height_);
+  if (y < 0 || y > Bot()) {
+    return;
+  }
+
+  buffer_[Xy(x_denorm, y_denorm)] = sym;
+}
+
 void AbstractRenderer::DrawBuffer() const {
   MoveCursorTo(0, 0);
   std::cout.write(buffer_.data(), buffer_.size());
