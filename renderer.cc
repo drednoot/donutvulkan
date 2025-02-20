@@ -4,14 +4,13 @@
 #include <string>
 
 #include "abstract_renderer.h"
-#include "quaternion.h"
 
 Renderer::Renderer() : AbstractRenderer(), coord_(0.0) {}
 
 void Renderer::Render(double delta) {
   const double r = 0.05;
   const double time_lived = TimeLived();
-  coord_ += test() * delta;
+  coord_ += 5.0 * delta;
 
   for (int y = 0; y < Height(); ++y) {
     for (int x = 0; x < Width(); ++x) {
