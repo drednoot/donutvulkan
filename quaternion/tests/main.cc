@@ -165,3 +165,10 @@ TEST_CASE("Rotate on zeroth Axis") {
   CHECK_EQ(rotated.y, doctest::Approx(p.y));
   CHECK_EQ(rotated.z, doctest::Approx(p.z));
 }
+
+TEST_CASE("Dot product") {
+  const Vec3 u{1, 2, 3};
+  const Vec3 v{4, 5, 6};
+
+  CHECK_EQ(u.Dot(v), doctest::Approx(32.0));
+}

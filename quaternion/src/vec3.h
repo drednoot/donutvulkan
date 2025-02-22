@@ -33,6 +33,10 @@ struct Vec3 {
     return !(std::isnan(x) || std::isinf(x) || std::isnan(y) || std::isinf(y) ||
              std::isnan(z) || std::isinf(z));
   }
+
+  inline double Dot(const Vec3& other) const {
+    return x * other.x + y * other.y + z * other.z;
+  }
 };
 
 }  // namespace quat

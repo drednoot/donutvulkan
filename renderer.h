@@ -17,7 +17,7 @@ class Renderer : public AbstractRenderer {
  private:
   struct PointInfo {
     quat::Vec3 p;
-    char c;
+    quat::Vec3 normal;
   };
   std::array<PointInfo,
              config::kCubeSidePresicion * config::kCubeSidePresicion * 6>
