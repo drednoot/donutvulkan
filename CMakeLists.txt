@@ -19,6 +19,7 @@ add_executable(donutcpp
     src/app/main.cc
     src/app/renderer.cc
     src/app/cube.cc
+    src/app/donut.cc
 )
 
 # Include directories

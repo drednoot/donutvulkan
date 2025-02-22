@@ -2,7 +2,7 @@
 #define DONUTCPP_APP_RENDERER_H_
 
 #include "abstract_renderer.h"
-#include "cube.h"
+#include "donut.h"
 
 class Renderer : public core::AbstractRenderer {
  public:
@@ -12,7 +12,7 @@ class Renderer : public core::AbstractRenderer {
   virtual void Render(double delta);
 
  private:
-  Cube cube_;
+  Donut donut_;
   double angle_;
 };
 

@@ -1,6 +1,10 @@
 #include "cube.h"
 
+#include <numbers>
+
+#include "point_info.h"
 #include "rotation.h"
+#include "vec3.h"
 
 Cube::Cube(double side_size, int precision)
     : Object(), side_size_(side_size), precision_(precision) {
