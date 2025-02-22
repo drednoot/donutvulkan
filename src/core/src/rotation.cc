@@ -3,7 +3,7 @@
 #include "quaternion.h"
 #include "vec3.h"
 
-namespace quat {
+namespace core {
 
 Vec3 Rotate(const Vec3& point, const Vec3& axis, double angle) {
   const Vec3 norm_axis = axis.Normalized();
@@ -18,4 +18,4 @@ Vec3 Rotate(const Vec3& point, const Vec3& axis, double angle) {
   return rotated_q.ExtractVector();
 }
 
-}  // namespace quat
+}  // namespace core

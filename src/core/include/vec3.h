@@ -1,9 +1,9 @@
-#ifndef QUATERNION_VEC3_H_
-#define QUATERNION_VEC3_H_
+#ifndef DONUTCPP_CORE_VEC3_H_
+#define DONUTCPP_CORE_VEC3_H_
 
 #include <cmath>
 
-namespace quat {
+namespace core {
 
 struct Vec3 {
  public:
@@ -45,6 +45,6 @@ struct Vec3 {
   }
 };
 
-}  // namespace quat
+}  // namespace core
 
-#endif  // QUATERNION_VEC3_H_
+#endif  // DONUTCPP_CORE_VEC3_H_

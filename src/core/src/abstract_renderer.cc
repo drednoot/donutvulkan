@@ -7,6 +7,8 @@
 #include <iostream>
 #include <thread>
 
+namespace core {
+
 AbstractRenderer::AbstractRenderer(int target_fps, int scene_live_time)
     : width_(0),
       height_(0),
@@ -59,7 +61,7 @@ void AbstractRenderer::Clear() {
   }
 }
 
-void AbstractRenderer::Put(quat::Vec3 point, char sym) {
+void AbstractRenderer::Put(core::Vec3 point, char sym) {
   int x_denorm = (int)(point.x * width_);
   if (x_denorm < 0 || x_denorm > Right()) {
     return;
@@ -84,3 +86,5 @@ void AbstractRenderer::DrawBuffer() const {
 void AbstractRenderer::MoveCursorTo(int x, int y) const {
   printf("\033[%d;%dH", y, x);
 }
+
+}  // namespace core

@@ -1,9 +1,9 @@
-#ifndef QUATERNION_ROTATION_H_
-#define QUATERNION_ROTATION_H_
+#ifndef DONUTCPP_CORE_ROTATION_H_
+#define DONUTCPP_CORE_ROTATION_H_
 
 #include "vec3.h"
 
-namespace quat {
+namespace core {
 
 /**
  * Rotates point `point` along axis `axis` by an angle `angle`
@@ -12,6 +12,6 @@ namespace quat {
  */
 Vec3 Rotate(const Vec3& point, const Vec3& axis, double angle);
 
-}  // namespace quat
+}  // namespace core
 
-#endif  // QUATERNION_ROTATION_H_
+#endif  // DONUTCPP_CORE_ROTATION_H_

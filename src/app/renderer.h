@@ -7,7 +7,7 @@
 #include "config.h"
 #include "vec3.h"
 
-class Renderer : public AbstractRenderer {
+class Renderer : public core::AbstractRenderer {
  public:
   Renderer();
 
@@ -16,8 +16,8 @@ class Renderer : public AbstractRenderer {
 
  private:
   struct PointInfo {
-    quat::Vec3 p;
-    quat::Vec3 normal;
+    core::Vec3 p;
+    core::Vec3 normal;
   };
   std::array<PointInfo,
              config::kCubeSidePresicion * config::kCubeSidePresicion * 6>

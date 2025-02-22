@@ -1,11 +1,11 @@
-#ifndef QUATERNION_QUATERNION_H_
-#define QUATERNION_QUATERNION_H_
+#ifndef DONUTCPP_CORE_QUATERNION_H_
+#define DONUTCPP_CORE_QUATERNION_H_
 
 #include <cmath>
 
 #include "vec3.h"
 
-namespace quat {
+namespace core {
 
 struct Quat {
  public:
@@ -73,6 +73,6 @@ struct Quat {
   inline bool operator!=(const Quat& other) const { return !(*this == other); }
 };
 
-}  // namespace quat
+}  // namespace core
 
-#endif  // QUATERNION_QUATERNION_H_
+#endif  // DONUTCPP_CORE_QUATERNION_H_

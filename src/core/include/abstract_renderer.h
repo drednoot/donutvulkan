@@ -1,10 +1,12 @@
-#ifndef DONUTCPP_ABSTRACT_RENDERER_H_
-#define DONUTCPP_ABSTRACT_RENDERER_H_
+#ifndef DONUTCPP_CORE_ABSTRACT_RENDERER_H_
+#define DONUTCPP_CORE_ABSTRACT_RENDERER_H_
 
 #include <chrono>
 #include <vector>
 
 #include "vec3.h"
+
+namespace core {
 
 class AbstractRenderer {
  public:
@@ -23,7 +25,7 @@ class AbstractRenderer {
    * checks bounds, checks depth, (probably) slower than Put(int x, int y, char
    * sym)
    */
-  void Put(quat::Vec3 point, char sym);
+  void Put(core::Vec3 point, char sym);
 
   int Width() const { return width_; };
   int Height() const { return height_; };
@@ -66,4 +68,6 @@ class AbstractRenderer {
   std::chrono::nanoseconds start_time_;
 };
 
-#endif  // DONUTCPP_ABSTRACT_RENDERER_H_
+}  // namespace core
+
+#endif  // DONUTCPP_CORE_ABSTRACT_RENDERER_H_

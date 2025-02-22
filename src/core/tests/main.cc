@@ -9,7 +9,7 @@
 #include "vec3.h"
 
 using namespace std::numbers;
-using namespace quat;
+using namespace core;
 
 TEST_CASE("From Axis And Angle") {
   const Vec3 axis{1.0, 0.0, 0.0};

@@ -18,9 +18,9 @@ Renderer::Renderer()
   const double step = config::kCubeSideSize / cubesize;
 
   struct Transition {
-    quat::Vec3 move;
-    quat::Vec3 rotate;
-    quat::Vec3 normal;
+    core::Vec3 move;
+    core::Vec3 rotate;
+    core::Vec3 normal;
     double angle;
   };
 
@@ -65,9 +65,9 @@ Renderer::Renderer()
 
   for (int side = 0; side < 6; ++side) {
     const Transition& cur_trans = face_transitions[side];
-    const quat::Vec3& axis = cur_trans.rotate;
-    const quat::Vec3& move = cur_trans.move;
-    const quat::Vec3& normal = cur_trans.normal;
+    const core::Vec3& axis = cur_trans.rotate;
+    const core::Vec3& move = cur_trans.move;
+    const core::Vec3& normal = cur_trans.normal;
 
     for (int i = 0; i < cubesize; ++i) {
       for (int j = 0; j < cubesize; ++j) {
@@ -76,8 +76,8 @@ Renderer::Renderer()
         double x = step * i;
         double y = step * j;
 
-        quat::Vec3 out =
-            quat::Rotate(quat::Vec3{x, y, 0.0}, axis, cur_trans.angle);
+        core::Vec3 out =
+            core::Rotate(core::Vec3{x, y, 0.0}, axis, cur_trans.angle);
         out += move;
 
         cube_points_[ind] = PointInfo{.p = out, .normal = normal};
@@ -91,15 +91,15 @@ void Renderer::Render(double delta) {
   angle_ += 2.5 * delta;
 
   for (const PointInfo& pi : cube_points_) {
-    const quat::Vec3 rotate_axis{0.1, 0.2, -0.5};
-    quat::Vec3 p =
-        pi.p - quat::Vec3{0.25, 0.25, 0.25};  // move it to the (0, 0, 0)
+    const core::Vec3 rotate_axis{0.1, 0.2, -0.5};
+    core::Vec3 p =
+        pi.p - core::Vec3{0.25, 0.25, 0.25};  // move it to the (0, 0, 0)
 
-    p = quat::Rotate(p, rotate_axis, angle_);
-    p += quat::Vec3{0.5, 0.5, 0.5};  // move it to the center of the screen
+    p = core::Rotate(p, rotate_axis, angle_);
+    p += core::Vec3{0.5, 0.5, 0.5};  // move it to the center of the screen
     p.x /= Ratio();
 
-    const quat::Vec3& out_normal = quat::Rotate(pi.normal, rotate_axis, angle_);
+    const core::Vec3& out_normal = core::Rotate(pi.normal, rotate_axis, angle_);
 
     double dot = std::max(config::kLightPoint.Dot(out_normal),
                           0.0);  // clamp to zero if negative
