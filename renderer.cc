@@ -1,5 +1,6 @@
 #include "renderer.h"
 
+#include <algorithm>
 #include <cmath>
 #include <numbers>
 #include <string>
@@ -96,7 +97,8 @@ void Renderer::Render(double delta) {
     out.y += 0.25;
     out.x /= Ratio();
 
-    double dot = config::kLightPoint.Dot(out_normal);
+    double dot = std::max(config::kLightPoint.Dot(out_normal),
+                          0.0);  // clamp to zero if negative
     int light_index = (int)(dot * config::kLightLevelCount);
     if (light_index > config::kLightLevelCount - 1) {
       light_index = config::kLightLevelCount - 1;
