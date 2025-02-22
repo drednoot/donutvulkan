@@ -18,6 +18,7 @@ enable_testing()
 add_executable(donutcpp
     src/app/main.cc
     src/app/renderer.cc
+    src/app/cube.cc
 )
 
 # Include directories

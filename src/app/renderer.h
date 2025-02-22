@@ -1,11 +1,8 @@
-#ifndef DONUTCPP_RENDERER_H_
-#define DONUTCPP_RENDERER_H_
-
-#include <array>
+#ifndef DONUTCPP_APP_RENDERER_H_
+#define DONUTCPP_APP_RENDERER_H_
 
 #include "abstract_renderer.h"
-#include "config.h"
-#include "vec3.h"
+#include "cube.h"
 
 class Renderer : public core::AbstractRenderer {
  public:
@@ -15,14 +12,8 @@ class Renderer : public core::AbstractRenderer {
   virtual void Render(double delta);
 
  private:
-  struct PointInfo {
-    core::Vec3 p;
-    core::Vec3 normal;
-  };
-  std::array<PointInfo,
-             config::kCubeSidePresicion * config::kCubeSidePresicion * 6>
-      cube_points_;
+  Cube cube_;
   double angle_;
 };
 
-#endif  // DONUTCPP_RENDERER_H_
+#endif  // DONUTCPP_APP_RENDERER_H_

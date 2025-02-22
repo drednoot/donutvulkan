@@ -37,11 +37,13 @@ void AbstractRenderer::Start() {
   start_time_ = std::chrono::system_clock::now().time_since_epoch();
 
   while (live_frames >= 0) {
-    std::chrono::time_point before_render = std::chrono::system_clock::now();
+    std::chrono::time_point before_render =
+        std::chrono::high_resolution_clock::now();
     Clear();
     Render(delta);
     DrawBuffer();
-    std::chrono::time_point after_render = std::chrono::system_clock::now();
+    std::chrono::time_point after_render =
+        std::chrono::high_resolution_clock::now();
     frame_time = after_render - before_render;
     delta = frame_time > target_ns_ ? NsToSeconds(frame_time)
                                     : NsToSeconds(target_ns_);
@@ -61,7 +63,7 @@ void AbstractRenderer::Clear() {
   }
 }
 
-void AbstractRenderer::Put(core::Vec3 point, char sym) {
+void AbstractRenderer::Put(const core::Vec3& point, char sym) {
   int x_denorm = (int)(point.x * width_);
   if (x_denorm < 0 || x_denorm > Right()) {
     return;

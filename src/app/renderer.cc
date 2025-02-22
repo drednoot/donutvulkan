@@ -7,96 +7,25 @@
 
 #include "abstract_renderer.h"
 #include "config.h"
+#include "point_info.h"
 #include "rotation.h"
 #include "vec3.h"
 
 Renderer::Renderer()
     : AbstractRenderer(config::kTargetFps, config::kSceneLiveTimeSeconds),
-      angle_(0.0) {
-  // generate cube points
-  const int cubesize = config::kCubeSidePresicion;
-  const double step = config::kCubeSideSize / cubesize;
-
-  struct Transition {
-    core::Vec3 move;
-    core::Vec3 rotate;
-    core::Vec3 normal;
-    double angle;
-  };
-
-  Transition face_transitions[6] = {
-      Transition{
-          .move = {0.0, 0.0, 0.0},
-          .rotate = {0.0, 0.0, 0.0},
-          .normal = {0.0, 0.0, -1.0},
-          .angle = 0.0,
-      },
-      Transition{
-          .move = {0.0, 0.0, 0.0},
-          .rotate = {0.0, 1.0, 0.0},
-          .normal = {-1.0, 0.0, 0.0},
-          .angle = -std::numbers::pi / 2.0,
-      },
-      Transition{
-          .move = {0.0, 0.0, 0.0},
-          .rotate = {1.0, 0.0, 0.0},
-          .normal = {0.0, -1.0, 0.0},
-          .angle = std::numbers::pi / 2.0,
-      },
-      Transition{
-          .move = {0.0, 0.0, config::kCubeSideSize},
-          .rotate = {0.0, 0.0, 0.0},
-          .normal = {0.0, 0.0, 1.0},
-          .angle = 0.0,
-      },
-      Transition{
-          .move = {config::kCubeSideSize, 0.0, 0.0},
-          .rotate = {0.0, 1.0, 0.0},
-          .normal = {1.0, 0.0, 0.0},
-          .angle = -std::numbers::pi / 2.0,
-      },
-      Transition{
-          .move = {0.0, config::kCubeSideSize, 0.0},
-          .rotate = {1.0, 0.0, 0.0},
-          .normal = {0.0, 1.0, 0.0},
-          .angle = std::numbers::pi / 2.0,
-      },
-  };
-
-  for (int side = 0; side < 6; ++side) {
-    const Transition& cur_trans = face_transitions[side];
-    const core::Vec3& axis = cur_trans.rotate;
-    const core::Vec3& move = cur_trans.move;
-    const core::Vec3& normal = cur_trans.normal;
-
-    for (int i = 0; i < cubesize; ++i) {
-      for (int j = 0; j < cubesize; ++j) {
-        const int ind = side * cubesize * cubesize + j * cubesize + i;
-
-        double x = step * i;
-        double y = step * j;
-
-        core::Vec3 out =
-            core::Rotate(core::Vec3{x, y, 0.0}, axis, cur_trans.angle);
-        out += move;
-
-        cube_points_[ind] = PointInfo{.p = out, .normal = normal};
-      }
-    }
-  }
-}
+      cube_(config::kCubeSideSize, config::kCubeSidePresicion),
+      angle_(0.0) {}
 
 void Renderer::Render(double delta) {
   const double time_lived = TimeLived();
   angle_ += 2.5 * delta;
 
-  for (const PointInfo& pi : cube_points_) {
+  for (const core::PointInfo& pi : cube_.Points()) {
     const core::Vec3 rotate_axis{0.1, 0.2, -0.5};
-    core::Vec3 p =
-        pi.p - core::Vec3{0.25, 0.25, 0.25};  // move it to the (0, 0, 0)
+    core::Vec3 p = pi.p;
 
-    p = core::Rotate(p, rotate_axis, angle_);
-    p += core::Vec3{0.5, 0.5, 0.5};  // move it to the center of the screen
+    p = core::Rotate(p, rotate_axis, angle_, {0.25, 0.25, 0.25});
+    p += core::Vec3{0.25, 0.25, 0.25};  // move it to the center of the screen
     p.x /= Ratio();
 
     const core::Vec3& out_normal = core::Rotate(pi.normal, rotate_axis, angle_);
