@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <string>
 
 #include "abstract_renderer.h"
 #include "config.h"
