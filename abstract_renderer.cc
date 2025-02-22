@@ -22,6 +22,7 @@ AbstractRenderer::AbstractRenderer()
   width_ = w.ws_col;
   height_ = w.ws_row;
   buffer_.resize(width_ * height_);
+  z_buffer_.resize(width_ * height_);
 
   screen_ratio_ = width_ / (double)height_;
 }
@@ -55,20 +56,24 @@ void AbstractRenderer::Start() {
 void AbstractRenderer::Clear() {
   for (int i = 0; i < width_ * height_; ++i) {
     buffer_[i] = ' ';
+    z_buffer_[i] = 0.0;
   }
 }
 
-void AbstractRenderer::Put(double x, double y, char sym) {
-  int x_denorm = (int)(x * width_);
+void AbstractRenderer::Put(quat::Vec3 point, char sym) {
+  int x_denorm = (int)(point.x * width_);
   if (x_denorm < 0 || x_denorm > Right()) {
     return;
   }
-  int y_denorm = (int)(y * height_);
-  if (y < 0 || y > Bot()) {
+  int y_denorm = (int)(point.y * height_);
+  if (y_denorm < 0 || y_denorm > Bot()) {
     return;
   }
 
-  buffer_[Xy(x_denorm, y_denorm)] = sym;
+  if (z_buffer_[Xy(x_denorm, y_denorm)] < point.z) {
+    z_buffer_[Xy(x_denorm, y_denorm)] = point.z;
+    buffer_[Xy(x_denorm, y_denorm)] = sym;
+  }
 }
 
 void AbstractRenderer::DrawBuffer() const {

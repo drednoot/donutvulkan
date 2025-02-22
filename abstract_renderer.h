@@ -4,6 +4,8 @@
 #include <chrono>
 #include <vector>
 
+#include "vec3.h"
+
 class AbstractRenderer {
  public:
   AbstractRenderer();
@@ -14,13 +16,14 @@ class AbstractRenderer {
   virtual void Render(double delta) = 0;
 
   void Clear();
-  // puts a char `sym` on the screen at (x, y), doesn't check bounds
+  // puts a char `sym` on the screen at a point (x, y), doesn't check bounds
   inline void Put(int x, int y, char sym) { buffer_[Xy(x, y)] = sym; }
   /**
-   * puts a char `sym` on the screen at (x, y), where 0 <= x, y < 1
-   * checks bounds, (probably) slower than Put(int x, int y, char sym)
+   * puts a char `sym` on the screen at a point `point`, where 0 <= x, y, z < 1
+   * checks bounds, checks depth, (probably) slower than Put(int x, int y, char
+   * sym)
    */
-  void Put(double x, double y, char sym);
+  void Put(quat::Vec3 point, char sym);
 
   int Width() const { return width_; };
   int Height() const { return height_; };
@@ -51,6 +54,7 @@ class AbstractRenderer {
   void MoveCursorTo(int x, int y) const;
 
   std::vector<char> buffer_;
+  std::vector<double> z_buffer_;
   int width_;
   int height_;
   double screen_ratio_;

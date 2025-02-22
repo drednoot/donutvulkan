@@ -89,13 +89,15 @@ void Renderer::Render(double delta) {
   angle_ += 2.5 * delta;
 
   for (const PointInfo& pi : cube_points_) {
-    const quat::Vec3 rotate_axis{0.5, 0.5, 0.5};
+    const quat::Vec3 rotate_axis{0.1, 0.2, -0.5};
+    quat::Vec3 p =
+        pi.p - quat::Vec3{0.25, 0.25, 0.25};  // move it to the (0, 0, 0)
 
-    quat::Vec3 out = quat::Rotate(pi.p, rotate_axis, angle_);
+    p = quat::Rotate(p, rotate_axis, angle_);
+    p += quat::Vec3{0.5, 0.5, 0.5};  // move it to the center of the screen
+    p.x /= Ratio();
+
     const quat::Vec3& out_normal = quat::Rotate(pi.normal, rotate_axis, angle_);
-    out.x += 0.5;
-    out.y += 0.25;
-    out.x /= Ratio();
 
     double dot = std::max(config::kLightPoint.Dot(out_normal),
                           0.0);  // clamp to zero if negative
@@ -106,7 +108,7 @@ void Renderer::Render(double delta) {
 
     char c = config::kLightLevles[light_index];
 
-    Put(out.x, out.y, c);
+    Put(p, c);
   }
 
   std::string dfs = std::to_string(time_lived);
