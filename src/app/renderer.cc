@@ -10,7 +10,9 @@
 #include "rotation.h"
 #include "vec3.h"
 
-Renderer::Renderer() : AbstractRenderer(), angle_(0.0) {
+Renderer::Renderer()
+    : AbstractRenderer(config::kTargetFps, config::kSceneLiveTimeSeconds),
+      angle_(0.0) {
   // generate cube points
   const int cubesize = config::kCubeSidePresicion;
   const double step = config::kCubeSideSize / cubesize;

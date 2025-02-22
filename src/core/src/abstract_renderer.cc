@@ -7,15 +7,15 @@
 #include <iostream>
 #include <thread>
 
-#include "config.h"
-
-AbstractRenderer::AbstractRenderer()
+AbstractRenderer::AbstractRenderer(int target_fps, int scene_live_time)
     : width_(0),
       height_(0),
       screen_ratio_(0.0),
       char_ratio_(0.5),
+      target_fps_(target_fps),
+      scene_live_time_(scene_live_time),
       target_ns_(std::chrono::nanoseconds(std::chrono::seconds(1)) /
-                 config::kTargetFps) {
+                 target_fps) {
   winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
@@ -28,8 +28,7 @@ AbstractRenderer::AbstractRenderer()
 }
 
 void AbstractRenderer::Start() {
-  int live_frames =
-      config::kSceneLiveTimeSeconds * config::kTargetFps;  // 10 seconds
+  int live_frames = scene_live_time_ * target_fps_;
 
   std::chrono::nanoseconds frame_time = target_ns_;
   double delta = NsToSeconds(target_ns_);

@@ -8,7 +8,7 @@
 
 class AbstractRenderer {
  public:
-  AbstractRenderer();
+  AbstractRenderer(int target_fps = 24, int scene_live_time = 30);
 
   void Start();
 
@@ -59,6 +59,8 @@ class AbstractRenderer {
   int height_;
   double screen_ratio_;
   double char_ratio_;
+  int target_fps_;
+  int scene_live_time_;
 
   std::chrono::nanoseconds target_ns_;
   std::chrono::nanoseconds start_time_;

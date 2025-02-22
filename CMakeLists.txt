@@ -16,19 +16,18 @@ enable_testing()
 
 # Add executable
 add_executable(donutcpp
-    main.cc
-    abstract_renderer.cc
-    renderer.cc
+    src/app/main.cc
+    src/app/renderer.cc
 )
 
-add_subdirectory(quaternion)
-add_dependencies(donutcpp quaternion)
-
 # Include directories
-target_include_directories(donutcpp PRIVATE .)
+target_include_directories(donutcpp PRIVATE src)
+
+add_subdirectory(src/core)
+add_dependencies(donutcpp core)
 
 target_link_libraries(donutcpp
   PRIVATE
-  quaternion
+  core
   m
 )

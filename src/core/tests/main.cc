@@ -172,3 +172,35 @@ TEST_CASE("Dot product") {
 
   CHECK_EQ(u.Dot(v), doctest::Approx(32.0));
 }
+
+TEST_CASE("Vec3 Subtract (const method)") {
+  const Vec3 v{3.0, 4.0, 5.0};
+  const Vec3 u{5.0, 7.0, 9.0};
+
+  const Vec3 result = v - u;
+
+  CHECK_EQ(result.x, doctest::Approx(v.x - u.x));
+  CHECK_EQ(result.y, doctest::Approx(v.y - u.y));
+  CHECK_EQ(result.z, doctest::Approx(v.z - u.z));
+}
+
+TEST_CASE("Vec3 Subtract (non-const method)") {
+  Vec3 v{3.0, 4.0, 5.0};
+  const Vec3 u{5.0, 7.0, 9.0};
+
+  v -= u;
+
+  CHECK_EQ(v.x, doctest::Approx(-2.0));
+  CHECK_EQ(v.y, doctest::Approx(-3.0));
+  CHECK_EQ(v.z, doctest::Approx(-4.0));
+}
+
+TEST_CASE("Vec3 Negate") {
+  const Vec3 v{3.0, 4.0, 5.0};
+
+  const Vec3 neg_v = -v;
+
+  CHECK_EQ(neg_v.x, doctest::Approx(-v.x));
+  CHECK_EQ(neg_v.y, doctest::Approx(-v.y));
+  CHECK_EQ(neg_v.z, doctest::Approx(-v.z));
+}
