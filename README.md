@@ -4,6 +4,8 @@ A simple linux C++ project that aims to draw a spinning donut on the screen. Too
 
 The project contains a simple core Renderer and a few utility structs and functions. All the calculations are done on the CPU.
 
+![donut in the terminal demonstration](misc/donut.gif)
+
 # requirements to run
 
  - A linux operating system
