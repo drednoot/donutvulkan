@@ -1,17 +1,27 @@
 #ifndef DONUTCPP_APP_RENDERER_H_
 #define DONUTCPP_APP_RENDERER_H_
 
-#include "abstract_renderer.h"
+#include <expected>
+#include <memory>
+
+#include "core/result.h"
+#include "core/vulkan_renderer.h"
 #include "donut.h"
 
-class Renderer : public core::AbstractRenderer {
+class Renderer : core::VulkanRenderHandler {
  public:
-  Renderer();
+  virtual ~Renderer() = default;
+  static std::expected<Renderer*, core::Result> New();
+
+  void Start();
 
  protected:
-  virtual void Render(double delta);
+  void Render(double delta, core::VulkanRenderer& renderer) override;
 
  private:
+  Renderer();
+
+  std::unique_ptr<core::VulkanRenderer> renderer_;
   Donut donut_;
   double angle_;
 };

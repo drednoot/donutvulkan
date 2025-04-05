@@ -1,7 +1,7 @@
-#include "rotation.h"
+#include "core/rotation.h"
 
-#include "quaternion.h"
-#include "vec3.h"
+#include "core/quaternion.h"
+#include "core/vec3.h"
 
 namespace core {
 

@@ -2,9 +2,9 @@
 
 #include <numbers>
 
-#include "point_info.h"
-#include "rotation.h"
-#include "vec3.h"
+#include "core/point_info.h"
+#include "core/rotation.h"
+#include "core/vec3.h"
 
 Cube::Cube(double side_size, int precision)
     : Object(), side_size_(side_size), precision_(precision) {

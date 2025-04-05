@@ -1,11 +1,12 @@
 #ifndef DONUTCPP_APP_CONFIG_H_
 #define DONUTCPP_APP_CONFIG_H_
 
-#include "vec3.h"
+#include "core/vec3.h"
 
 namespace config {
+inline const int kWindowWidth = 800;
+inline const int kWindowHeight = 600;
 inline const int kTargetFps = 24;
-inline const int kSceneLiveTimeSeconds = 30;
 
 inline const int kCubeSidePresicion = 100;
 inline const double kCubeSideSize = 0.5;

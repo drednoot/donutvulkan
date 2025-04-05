@@ -2,9 +2,9 @@
 
 #include <numbers>
 
-#include "point_info.h"
-#include "rotation.h"
-#include "vec3.h"
+#include "core/point_info.h"
+#include "core/rotation.h"
+#include "core/vec3.h"
 
 Donut::Donut(double r1, double r2, int precision) : Object() {
   points_.resize(precision * precision);

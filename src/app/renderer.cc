@@ -2,21 +2,40 @@
 
 #include <algorithm>
 #include <cmath>
+#include <expected>
+#include <memory>
 
-#include "abstract_renderer.h"
+#include "core/point_info.h"
+#include "core/result.h"
+#include "core/rotation.h"
+#include "core/vec3.h"
+#include "core/vulkan_renderer.h"
+
 #include "config.h"
-#include "point_info.h"
-#include "rotation.h"
-#include "vec3.h"
 
-Renderer::Renderer()
-    : AbstractRenderer(config::kTargetFps, config::kSceneLiveTimeSeconds),
-      donut_(config::kDonutMajorR,
-             config::kDonutMinorR,
-             config::kDonutPrecision),
-      angle_(0.0) {}
+std::expected<Renderer*, core::Result> Renderer::New() {
+  std::unique_ptr<Renderer> rend;
 
-void Renderer::Render(double delta) {
+  core::VulkanRendererConfig config{
+      .width = config::kWindowWidth,
+      .height = config::kWindowHeight,
+      .target_fps = config::kTargetFps,
+      .render_handler = rend.get(),
+  };
+
+  rend->renderer_.reset(TRY(core::VulkanRenderer::New(config)));
+  rend->donut_ = Donut(config::kDonutMajorR, config::kDonutMinorR,
+                       config::kDonutPrecision);
+  rend->angle_ = 0.0;
+
+  return rend.release();
+}
+
+void Renderer::Start() {
+  renderer_->Start();
+}
+
+void Renderer::Render(double delta, core::VulkanRenderer& renderer) {
   angle_ += 2.5 * delta;
 
   for (const core::PointInfo& pi : donut_.Points()) {
@@ -27,7 +46,7 @@ void Renderer::Render(double delta) {
     p = core::Rotate(p, rotate_axis1, angle_);
     p = core::Rotate(p, rotate_axis2, angle_ * 0.2);
     p += core::Vec3{0.5, 0.5, 0.5};  // move it to the center of the screen
-    p.x /= Ratio();
+    p.x /= renderer.Ratio();
 
     core::Vec3 normal = pi.normal;
     normal = core::Rotate(normal, rotate_axis1, angle_);
@@ -43,6 +62,6 @@ void Renderer::Render(double delta) {
 
     char c = config::kLightLevles[light_index];
 
-    Put(p, c);
+    renderer.Put(p, c);
   }
 }

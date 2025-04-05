@@ -4,9 +4,9 @@
 #include <cmath>
 #include <numbers>
 
-#include "quaternion.h"
-#include "rotation.h"
-#include "vec3.h"
+#include "core/quaternion.h"
+#include "core/rotation.h"
+#include "core/vec3.h"
 
 using namespace std::numbers;
 using namespace core;

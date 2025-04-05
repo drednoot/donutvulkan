@@ -1,7 +1,7 @@
 #ifndef DONUTCPP_APP_DONUT_H_
 #define DONUTCPP_APP_DONUT_H_
 
-#include "object.h"
+#include "core/object.h"
 
 /**
  *  Initializes Donut points.
@@ -12,6 +12,7 @@
  */
 class Donut : public core::Object {
  public:
+  Donut() = default;
   Donut(double r1, double r2, int precision);
 };
 

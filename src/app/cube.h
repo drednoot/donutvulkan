@@ -1,7 +1,7 @@
 #ifndef DONUTCPP_APP_CUBE_H_
 #define DONUTCPP_APP_CUBE_H_
 
-#include "object.h"
+#include "core/object.h"
 
 class Cube : public core::Object {
  public:
