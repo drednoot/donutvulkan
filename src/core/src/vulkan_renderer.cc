@@ -16,7 +16,7 @@ namespace core {
 
 std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
-  std::unique_ptr<VulkanRenderer> rend;
+  std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
   rend->instance_ = TRY(CreateVkInstance());
 

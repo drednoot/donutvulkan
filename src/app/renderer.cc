@@ -14,7 +14,7 @@
 #include "config.h"
 
 std::expected<Renderer*, core::Result> Renderer::New() {
-  std::unique_ptr<Renderer> rend;
+  std::unique_ptr<Renderer> rend(new Renderer);
 
   core::VulkanRendererConfig config{
       .width = config::kWindowWidth,

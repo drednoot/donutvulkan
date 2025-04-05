@@ -19,7 +19,7 @@ class Renderer : core::VulkanRenderHandler {
   void Render(double delta, core::VulkanRenderer& renderer) override;
 
  private:
-  Renderer();
+  Renderer() {};
 
   std::unique_ptr<core::VulkanRenderer> renderer_;
   Donut donut_;
