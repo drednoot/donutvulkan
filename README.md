@@ -13,7 +13,7 @@
   - c++23 standard
   - GNU statement expressions
  - git
- - Vulkan
+ - Vulkan (as well as [Vulkan Utility Libraries](https://github.com/KhronosGroup/Vulkan-Utility-Libraries) if they are not included in your Vulkan SDK)
  - glfw 3.3
 
 # build steps
