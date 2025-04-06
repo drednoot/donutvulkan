@@ -10,8 +10,8 @@
  - CMake
  - A build system (make, ninja, etc.)
  - A C++ compiler (clang++, g++ etc.) supporting:
-  - c++23 standard
-  - GNU statement expressions
+   - c++23 standard
+   - GNU statement expressions
  - git
  - Vulkan (as well as [Vulkan Utility Libraries](https://github.com/KhronosGroup/Vulkan-Utility-Libraries) if they are not included in your Vulkan SDK)
  - glfw 3.3
