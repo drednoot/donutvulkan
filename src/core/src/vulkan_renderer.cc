@@ -5,8 +5,10 @@
 
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <array>
 #include <chrono>
 #include <cmath>
+#include <cstring>
 #include <expected>
 #include <iostream>
 #include <memory>
@@ -122,7 +124,13 @@ std::expected<VkInstance, VkResult> VulkanRenderer::CreateVkInstance() {
   create_info.enabledExtensionCount = glfw_extension_count;
   create_info.ppEnabledExtensionNames = glfw_extensions;
 
+#ifndef NDEBUG
+  std::vector<const char*> available_layers = GetAvailableValidationLayers();
+  create_info.enabledLayerCount = available_layers.size();
+  create_info.ppEnabledLayerNames = available_layers.data();
+#else
   create_info.enabledLayerCount = 0;
+#endif
 
   VkInstance instance;
   VkResult result = vkCreateInstance(&create_info, nullptr, &instance);
@@ -133,6 +141,39 @@ std::expected<VkInstance, VkResult> VulkanRenderer::CreateVkInstance() {
 
   return instance;
 }
+
+#ifndef NDEBUG
+std::vector<const char*> VulkanRenderer::GetAvailableValidationLayers() {
+  std::array<const char*, 1> validation_layers = {
+      "VK_LAYER_KHRONOS_validation"};
+  std::vector<const char*> enabled_layer_names;
+
+  uint32_t layer_count;
+  vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+  std::vector<VkLayerProperties> layers_available(layer_count);
+  vkEnumerateInstanceLayerProperties(&layer_count, layers_available.data());
+
+  for (const char* layer_name : validation_layers) {
+    bool found = false;
+
+    for (const auto& layer_properties : layers_available) {
+      if (strcmp(layer_name, layer_properties.layerName) == 0) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      std::cerr << "Layer " << layer_name << " was not found" << std::endl;
+      continue;
+    }
+
+    enabled_layer_names.push_back(layer_name);
+  }
+
+  return enabled_layer_names;
+}
+#endif
 
 void VulkanRenderer::DrawBuffer() const {
   MoveCursorTo(0, 0);

@@ -75,6 +75,9 @@ class VulkanRenderer {
 
   // vulkan stuff
   static std::expected<VkInstance, VkResult> CreateVkInstance();
+#ifndef NDEBUG
+  static std::vector<const char*> GetAvailableValidationLayers();
+#endif
 
   void DrawBuffer() const;
 

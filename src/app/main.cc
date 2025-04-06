@@ -8,7 +8,7 @@
 int main() {
   auto rend_exp = Renderer::New();
   if (!rend_exp) {
-    std::cout << core::ResultToString(rend_exp.error()) << std::endl;
+    std::cerr << core::ResultToString(rend_exp.error()) << std::endl;
 
     return 1;
   }
