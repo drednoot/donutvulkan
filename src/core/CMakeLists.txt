@@ -13,6 +13,7 @@ target_include_directories(core
 )
 
 find_package(Vulkan REQUIRED)
+find_package(VulkanUtilityLibraries REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
 target_link_libraries(core

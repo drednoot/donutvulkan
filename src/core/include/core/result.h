@@ -37,6 +37,8 @@ struct Result {
   } error;
 };
 
+const char* ResultToString(Result r);
+
 #define TRY(expr)                                        \
   ({                                                     \
     const auto& exp = expr;                              \
