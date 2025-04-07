@@ -44,9 +44,9 @@ class VulkanRenderer {
    */
   void Put(const core::Vec3& point, char sym);
 
-  int Width() const;
-  int Height() const;
-  double Ratio() const;
+  int GetWidth() const;
+  int GetHeight() const;
+  double GetRatio() const;
 
   // converts x and y to buffer index
   int Xy(int x, int y) const;

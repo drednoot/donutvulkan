@@ -46,7 +46,7 @@ void Renderer::Render(double delta, core::VulkanRenderer& renderer) {
     p = core::Rotate(p, rotate_axis1, angle_);
     p = core::Rotate(p, rotate_axis2, angle_ * 0.2);
     p += core::Vec3{0.5, 0.5, 0.5};  // move it to the center of the screen
-    p.x /= renderer.Ratio();
+    p.x /= renderer.GetRatio();
 
     core::Vec3 normal = pi.normal;
     normal = core::Rotate(normal, rotate_axis1, angle_);

@@ -1,3 +1,4 @@
+#include "vulkan_renderer_impl.h"
 #include "core/vulkan_renderer.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -15,7 +16,6 @@
 #include <thread>
 
 #include "queue_families.h"
-#include "vulkan_renderer_impl.h"
 
 namespace core {
 
@@ -112,15 +112,15 @@ void VulkanRenderer::Put(const core::Vec3& point, char sym) {
   }
 }
 
-int VulkanRenderer::Width() const {
+int VulkanRenderer::GetWidth() const {
   return d->cfg_.width;
 }
 
-int VulkanRenderer::Height() const {
+int VulkanRenderer::GetHeight() const {
   return d->cfg_.height;
 }
 
-double VulkanRenderer::Ratio() const {
+double VulkanRenderer::GetRatio() const {
   return d->screen_ratio_;
 }
 
@@ -137,7 +137,7 @@ int VulkanRenderer::Bot() const {
 }
 
 double VulkanRenderer::ToAspect(double val) const {
-  return val * Ratio();
+  return val * GetRatio();
 }
 
 double VulkanRenderer::NsToSeconds(std::chrono::nanoseconds ns) const {
