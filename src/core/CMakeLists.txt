@@ -1,6 +1,6 @@
 add_library(core
   SHARED
-  src/vulkan_renderer.cc
+  src/vulkan_renderer_impl.cc
   src/rotation.cc
   src/result.cc
 )
@@ -10,6 +10,8 @@ add_subdirectory(tests)
 target_include_directories(core
   PUBLIC
   include
+  PRIVATE
+  src
 )
 
 find_package(Vulkan REQUIRED)

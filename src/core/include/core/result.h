@@ -18,10 +18,18 @@ struct NoError {};
 
 enum CoreError {
   kCouldNotInitializeGlfwWindow = 0,
+  kNoGpuWithVulkanSupport,
+  kNoSuitableGpu,
 };
 
 const char* CoreErrorToString(CoreError e);
 
+/**
+ * Result type is used to have the result of an operation.
+ * Default constructor means no error occurred
+ * (Result().kind == ResultKind::kNoError).
+ * other constructors are explicit
+ */
 struct Result {
   Result() : kind(kNoError), error({.no_error = NoError{}}) {}
   explicit Result(CoreError core_error)

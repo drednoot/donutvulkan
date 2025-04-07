@@ -14,13 +14,16 @@
 #include <memory>
 #include <thread>
 
+#include "queue_families.h"
+#include "vulkan_renderer_impl.h"
+
 namespace core {
 
 std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
-  rend->instance_ = TRY(rend->CreateVkInstance());
+  rend->d->instance_ = TRY(rend->d->CreateVkInstance());
 
   glfwInit();
 
@@ -32,36 +35,38 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
   if (!window) {
     return std::unexpected(Result(CoreError::kCouldNotInitializeGlfwWindow));
   }
-  rend->window_ = window;
+  rend->d->window_ = window;
 
-  rend->cfg_ = config;
-  rend->buffer_.resize(config.width * config.height);
-  rend->z_buffer_.resize(config.width * config.height);
-  rend->screen_ratio_ = config.width / (double)config.height;
-  rend->target_ns_ =
+  rend->d->cfg_ = config;
+  rend->d->buffer_.resize(config.width * config.height);
+  rend->d->z_buffer_.resize(config.width * config.height);
+  rend->d->screen_ratio_ = config.width / (double)config.height;
+  rend->d->target_ns_ =
       std::chrono::nanoseconds(std::chrono::seconds(1)) / config.target_fps;
 
   return rend.release();
 }
 
+VulkanRenderer::VulkanRenderer() : d(std::make_unique<Impl>()) {}
+
 VulkanRenderer::~VulkanRenderer() {
-  if (window_) {
-    glfwDestroyWindow(window_);
+  if (d->window_) {
+    glfwDestroyWindow(d->window_);
   }
 
-  if (instance_) {
-    vkDestroyInstance(instance_, nullptr);
+  if (d->instance_) {
+    vkDestroyInstance(d->instance_, nullptr);
   }
 
   glfwTerminate();
 }
 
 void VulkanRenderer::Start() {
-  std::chrono::nanoseconds frame_time = target_ns_;
+  std::chrono::nanoseconds frame_time = d->target_ns_;
   // double delta = NsToSeconds(target_ns_);
-  start_time_ = std::chrono::system_clock::now().time_since_epoch();
+  d->start_time_ = std::chrono::system_clock::now().time_since_epoch();
 
-  while (!glfwWindowShouldClose(window_)) {
+  while (!glfwWindowShouldClose(d->window_)) {
     std::chrono::time_point before_render =
         std::chrono::high_resolution_clock::now();
     // Clear();
@@ -74,36 +79,81 @@ void VulkanRenderer::Start() {
     // delta = frame_time > target_ns_ ? NsToSeconds(frame_time)
     //                                 : NsToSeconds(target_ns_);
 
-    if (frame_time < target_ns_) {
-      std::this_thread::sleep_for(target_ns_ - frame_time);
+    if (frame_time < d->target_ns_) {
+      std::this_thread::sleep_for(d->target_ns_ - frame_time);
     }
   }
 }
 
 void VulkanRenderer::Clear() {
-  for (int i = 0; i < cfg_.width * cfg_.height; ++i) {
-    buffer_[i] = ' ';
-    z_buffer_[i] = 0.0;
+  for (int i = 0; i < d->cfg_.width * d->cfg_.height; ++i) {
+    d->buffer_[i] = ' ';
+    d->z_buffer_[i] = 0.0;
   }
 }
 
+void VulkanRenderer::Put(int x, int y, char sym) {
+  d->buffer_[Xy(x, y)] = sym;
+}
+
 void VulkanRenderer::Put(const core::Vec3& point, char sym) {
-  int x_denorm = (int)(point.x * cfg_.width);
+  int x_denorm = (int)(point.x * d->cfg_.width);
   if (x_denorm < 0 || x_denorm > Right()) {
     return;
   }
-  int y_denorm = (int)(point.y * cfg_.height);
+  int y_denorm = (int)(point.y * d->cfg_.height);
   if (y_denorm < 0 || y_denorm > Bot()) {
     return;
   }
 
-  if (z_buffer_[Xy(x_denorm, y_denorm)] < point.z) {
-    z_buffer_[Xy(x_denorm, y_denorm)] = point.z;
-    buffer_[Xy(x_denorm, y_denorm)] = sym;
+  if (d->z_buffer_[Xy(x_denorm, y_denorm)] < point.z) {
+    d->z_buffer_[Xy(x_denorm, y_denorm)] = point.z;
+    d->buffer_[Xy(x_denorm, y_denorm)] = sym;
   }
 }
 
-std::expected<VkInstance, VkResult> VulkanRenderer::CreateVkInstance() {
+int VulkanRenderer::Width() const {
+  return d->cfg_.width;
+}
+
+int VulkanRenderer::Height() const {
+  return d->cfg_.height;
+}
+
+double VulkanRenderer::Ratio() const {
+  return d->screen_ratio_;
+}
+
+int VulkanRenderer::Xy(int x, int y) const {
+  return y * d->cfg_.width + x;
+}
+
+int VulkanRenderer::Right() const {
+  return d->cfg_.width - 1;
+}
+
+int VulkanRenderer::Bot() const {
+  return d->cfg_.height - 1;
+}
+
+double VulkanRenderer::ToAspect(double val) const {
+  return val * Ratio();
+}
+
+double VulkanRenderer::NsToSeconds(std::chrono::nanoseconds ns) const {
+  const long count =
+      std::chrono::duration_cast<std::chrono::milliseconds, long>(ns).count();
+  return count / 1000.0;
+}
+
+double VulkanRenderer::TimeLived() const {
+  std::chrono::nanoseconds now =
+      std::chrono::system_clock::now().time_since_epoch();
+  std::chrono::nanoseconds from_start = now - d->start_time_;
+  return NsToSeconds(from_start);
+}
+
+std::expected<VkInstance, VkResult> VulkanRenderer::Impl::CreateVkInstance() {
   VkApplicationInfo app_info{};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   app_info.pApplicationName = "donutvulkan";
@@ -148,7 +198,7 @@ std::expected<VkInstance, VkResult> VulkanRenderer::CreateVkInstance() {
 }
 
 #ifndef NDEBUG
-std::vector<const char*> VulkanRenderer::GetAvailableValidationLayers() {
+std::vector<const char*> VulkanRenderer::Impl::GetAvailableValidationLayers() {
   std::array<const char*, 1> validation_layers = {
       "VK_LAYER_KHRONOS_validation"};
   std::vector<const char*> enabled_layer_names;
@@ -180,13 +230,55 @@ std::vector<const char*> VulkanRenderer::GetAvailableValidationLayers() {
 }
 #endif
 
-void VulkanRenderer::DrawBuffer() const {
+std::expected<VkPhysicalDevice, Result>
+VulkanRenderer::Impl::GetSuitablePhysicalDevice() {
+  VkPhysicalDevice physical_device = VK_NULL_HANDLE;
+  uint32_t device_count = 0;
+  vkEnumeratePhysicalDevices(instance_, &device_count, nullptr);
+
+  if (device_count < 1) {
+    return std::unexpected(Result(CoreError::kNoGpuWithVulkanSupport));
+  }
+
+  std::vector<VkPhysicalDevice> devices(device_count);
+  vkEnumeratePhysicalDevices(instance_, &device_count, devices.data());
+
+  for (const VkPhysicalDevice& device : devices) {
+    if (IsDeviceSuitable(device)) {
+      physical_device = device;
+      break;
+    }
+  }
+
+  if (physical_device == VK_NULL_HANDLE) {
+    return std::unexpected(Result(CoreError::kNoSuitableGpu));
+  }
+
+  return physical_device;
+}
+
+bool VulkanRenderer::Impl::IsDeviceSuitable(VkPhysicalDevice device) {
+  // VkPhysicalDeviceProperties device_properties;
+  // vkGetPhysicalDeviceProperties(device, &device_properties);
+
+  // VkPhysicalDeviceFeatures device_features;
+  // vkGetPhysicalDeviceFeatures(device, &device_features);
+
+  (void)device;
+  return true;  // whatever, for now - anything goes
+}
+
+QueueFamilies VulkanRenderer::Impl::GetQueueFamilies() {
+  return QueueFamilies{};
+}
+
+void VulkanRenderer::Impl::DrawBuffer() const {
   MoveCursorTo(0, 0);
   std::cout.write(buffer_.data(), buffer_.size());
   std::cout.flush();
 }
 
-void VulkanRenderer::MoveCursorTo(int x, int y) const {
+void VulkanRenderer::Impl::MoveCursorTo(int x, int y) const {
   printf("\033[%d;%dH", y, x);
 }
 
