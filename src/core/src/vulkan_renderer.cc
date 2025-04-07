@@ -20,7 +20,7 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
-  rend->instance_ = TRY(CreateVkInstance());
+  rend->instance_ = TRY(rend->CreateVkInstance());
 
   glfwInit();
 
@@ -128,6 +128,11 @@ std::expected<VkInstance, VkResult> VulkanRenderer::CreateVkInstance() {
   std::vector<const char*> available_layers = GetAvailableValidationLayers();
   create_info.enabledLayerCount = available_layers.size();
   create_info.ppEnabledLayerNames = available_layers.data();
+  if (!available_layers.empty()) {
+    is_validation_layers_enabled_ = true;
+  } else {
+    is_validation_layers_enabled_ = false;
+  }
 #else
   create_info.enabledLayerCount = 0;
 #endif

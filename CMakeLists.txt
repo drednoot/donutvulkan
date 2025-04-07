@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Configure compiler warnings (GCC/Clang compatible)
-add_compile_options(-Wall -Wextra -Wpedantic -Wno-gnu-statement-expression)
+add_compile_options(-Wall -Wextra -Wpedantic -Wswitch-enum -Wno-gnu-statement-expression)
 
 # tests
 include(cmake/doctest.cmake)

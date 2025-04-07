@@ -47,9 +47,9 @@ class VulkanRenderer {
    */
   void Put(const core::Vec3& point, char sym);
 
-  int Width() const { return cfg_.width; };
-  int Height() const { return cfg_.height; };
-  double Ratio() const { return screen_ratio_; };
+  int Width() const { return cfg_.width; }
+  int Height() const { return cfg_.height; }
+  double Ratio() const { return screen_ratio_; }
 
   // converts x and y to buffer index
   inline int Xy(int x, int y) const { return y * cfg_.width + x; }
@@ -74,7 +74,7 @@ class VulkanRenderer {
   VulkanRenderer() {}
 
   // vulkan stuff
-  static std::expected<VkInstance, VkResult> CreateVkInstance();
+  std::expected<VkInstance, VkResult> CreateVkInstance();
 #ifndef NDEBUG
   static std::vector<const char*> GetAvailableValidationLayers();
 #endif
@@ -87,6 +87,10 @@ class VulkanRenderer {
 
   GLFWwindow* window_;
   VkInstance instance_;
+
+#ifndef NDEBUG
+  bool is_validation_layers_enabled_;
+#endif
 
   std::vector<char> buffer_;
   std::vector<double> z_buffer_;

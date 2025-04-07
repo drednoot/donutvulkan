@@ -8,9 +8,9 @@ const char* CoreErrorToString(CoreError e) {
   switch (e) {
     case kCouldNotInitializeGlfwWindow:
       return "Could not initialize GLFW Window";
+    default:
+      return "Unknown error code";
   }
-
-  return "Unknown error code";
 }
 
 const char* ResultToString(Result r) {
@@ -21,6 +21,8 @@ const char* ResultToString(Result r) {
       return CoreErrorToString(r.error.core);
     case kVkError:
       return string_VkResult(r.error.vk);
+    default:
+      return "Unknown Result type";
   }
 }
 
