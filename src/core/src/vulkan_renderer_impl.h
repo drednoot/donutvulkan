@@ -22,7 +22,7 @@ struct VulkanRenderer::Impl {
 #endif
   std::expected<VkPhysicalDevice, Result> GetSuitablePhysicalDevice();
   static bool IsDeviceSuitable(VkPhysicalDevice device);
-  QueueFamilies GetQueueFamilies();
+  static QueueFamilies GetQueueFamilies(VkPhysicalDevice device);
 
   void DrawBuffer() const;
 
@@ -32,6 +32,7 @@ struct VulkanRenderer::Impl {
 
   GLFWwindow* window_;
   VkInstance instance_;
+  VkPhysicalDevice device_;
 
 #ifndef NDEBUG
   bool is_validation_layers_enabled_;

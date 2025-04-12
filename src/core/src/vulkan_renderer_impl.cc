@@ -258,18 +258,34 @@ VulkanRenderer::Impl::GetSuitablePhysicalDevice() {
 }
 
 bool VulkanRenderer::Impl::IsDeviceSuitable(VkPhysicalDevice device) {
-  // VkPhysicalDeviceProperties device_properties;
-  // vkGetPhysicalDeviceProperties(device, &device_properties);
+  const QueueFamilies& queue_families = GetQueueFamilies(device);
 
-  // VkPhysicalDeviceFeatures device_features;
-  // vkGetPhysicalDeviceFeatures(device, &device_features);
+  if (!queue_families.graphics_family.has_value()) {
+    return false;
+  }
 
-  (void)device;
-  return true;  // whatever, for now - anything goes
+  return true;
 }
 
-QueueFamilies VulkanRenderer::Impl::GetQueueFamilies() {
-  return QueueFamilies{};
+QueueFamilies VulkanRenderer::Impl::GetQueueFamilies(VkPhysicalDevice device) {
+  QueueFamilies families;
+
+  uint32_t queue_family_count = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
+                                           nullptr);
+  std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
+  vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
+                                           queue_families.data());
+
+  for (uint32_t i = 0; i < queue_families.size(); ++i) {
+    const VkQueueFamilyProperties& queue_family = queue_families[i];
+    if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+      families.graphics_family = i;
+      break;
+    }
+  }
+
+  return families;
 }
 
 void VulkanRenderer::Impl::DrawBuffer() const {

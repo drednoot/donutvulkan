@@ -7,7 +7,7 @@
 namespace core {
 
 struct QueueFamilies {
-  std::optional<uint32_t> graphicsFamily;
+  std::optional<uint32_t> graphics_family;
 };
 
 }  // namespace core
