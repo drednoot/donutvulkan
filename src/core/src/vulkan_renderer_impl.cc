@@ -126,6 +126,7 @@ std::expected<VkDevice, VkResult> VulkanRenderer::Impl::NewLogicalDevice() {
 
     const float queue_priority = 1.0f;
     queue_create_info.pQueuePriorities = &queue_priority;
+    queue_create_infos.push_back(std::move(queue_create_info));
   }
 
   device_create_info.pQueueCreateInfos = queue_create_infos.data();
