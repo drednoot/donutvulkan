@@ -24,12 +24,13 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
   rend->d->instance_ = TRY(rend->d->NewVkInstance());
-  rend->d->physical_device_.reset(TRY(PhysicalDevice::New(rend->d->instance_)));
+  rend->d->surface_ = TRY(rend->d->NewSurface());
+  rend->d->physical_device_.reset(
+      TRY(PhysicalDevice::New(rend->d->instance_, rend->d->surface_)));
   rend->d->device_ = TRY(rend->d->NewLogicalDevice());
-  vkGetDeviceQueue(
-      rend->d->device_,
-      rend->d->physical_device_->GetQueueFamilies().graphics_family, 0,
-      &rend->d->graphics_queue_);
+  vkGetDeviceQueue(rend->d->device_,
+                   rend->d->physical_device_->GetQueueFamilies().graphics, 0,
+                   &rend->d->graphics_queue_);
 
   glfwInit();
 
@@ -60,11 +61,15 @@ VulkanRenderer::~VulkanRenderer() {
     glfwDestroyWindow(d->window_);
   }
 
+  if (d->instance_ && d->surface_) {
+    vkDestroySurfaceKHR(d->instance_, d->surface_, nullptr);
+  }
+
   if (d->instance_) {
     vkDestroyInstance(d->instance_, nullptr);
   }
 
-  if (d->device_ != VK_NULL_HANDLE) {
+  if (d->device_) {
     vkDestroyDevice(d->device_, nullptr);
   }
 
@@ -240,11 +245,22 @@ std::vector<const char*> VulkanRenderer::Impl::GetAvailableValidationLayers() {
 }
 #endif
 
-std::expected<VkDevice, Result> VulkanRenderer::Impl::NewLogicalDevice() {
+std::expected<VkSurfaceKHR, VkResult> VulkanRenderer::Impl::NewSurface() {
+  VkSurfaceKHR surface;
+  VkResult res = glfwCreateWindowSurface(instance_, window_, nullptr, &surface);
+
+  if (res != VK_SUCCESS) {
+    return std::unexpected(res);
+  }
+
+  return surface;
+}
+
+std::expected<VkDevice, VkResult> VulkanRenderer::Impl::NewLogicalDevice() {
   VkDeviceQueueCreateInfo queue_create_info{};
   queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   queue_create_info.queueFamilyIndex =
-      physical_device_->GetQueueFamilies().graphics_family;
+      physical_device_->GetQueueFamilies().graphics;
   queue_create_info.queueCount = 1;
 
   float queue_priority = 1.0f;
@@ -263,7 +279,7 @@ std::expected<VkDevice, Result> VulkanRenderer::Impl::NewLogicalDevice() {
   VkResult res =
       vkCreateDevice(*physical_device_, &device_create_info, nullptr, &device);
   if (res != VK_SUCCESS) {
-    return std::unexpected(Result(res));
+    return std::unexpected(res);
   }
 
   return device;

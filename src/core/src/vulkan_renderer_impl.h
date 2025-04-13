@@ -9,7 +9,6 @@
 #include <memory>
 #include <vector>
 
-#include "core/result.h"
 #include "core/vulkan_renderer.h"
 
 #include "physical_device.h"
@@ -22,8 +21,8 @@ struct VulkanRenderer::Impl {
 #ifndef NDEBUG
   static std::vector<const char*> GetAvailableValidationLayers();
 #endif
-  std::expected<VkPhysicalDevice, Result> NewSuitablePhysicalDevice();
-  std::expected<VkDevice, Result> NewLogicalDevice();
+  std::expected<VkSurfaceKHR, VkResult> NewSurface();
+  std::expected<VkDevice, VkResult> NewLogicalDevice();
 
   void DrawBuffer() const;
 
@@ -33,6 +32,7 @@ struct VulkanRenderer::Impl {
 
   GLFWwindow* window_ = nullptr;
   VkInstance instance_ = VK_NULL_HANDLE;
+  VkSurfaceKHR surface_ = VK_NULL_HANDLE;
   std::unique_ptr<PhysicalDevice> physical_device_;
   VkDevice device_ = VK_NULL_HANDLE;
   VkQueue graphics_queue_ = VK_NULL_HANDLE;

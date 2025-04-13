@@ -11,13 +11,20 @@
 
 namespace core {
 
-inline const VkQueueFlags kRequiredFamilies = VK_QUEUE_GRAPHICS_BIT;
-
 struct QueueFamilies {
-  uint32_t graphics_family;
+  uint32_t graphics;
+  uint32_t present;
 
   static std::expected<QueueFamilies, Result> New(
-      VkPhysicalDevice physical_device);
+      VkPhysicalDevice physical_device,
+      VkSurfaceKHR surface);
+
+ private:
+  enum RequireFamilies {
+    kGraphicsFamily = 0x1,
+    kPresentSupportFamily = 0x2,
+    kRequiredFamilies = kGraphicsFamily & kPresentSupportFamily,
+  };
 };
 
 }  // namespace core

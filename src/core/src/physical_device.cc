@@ -8,7 +8,8 @@
 namespace core {
 
 std::expected<PhysicalDevice*, Result> PhysicalDevice::New(
-    VkInstance instance) {
+    VkInstance instance,
+    VkSurfaceKHR surface) {
   uint32_t device_count = 0;
   vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
 
@@ -23,7 +24,7 @@ std::expected<PhysicalDevice*, Result> PhysicalDevice::New(
 
   for (const VkPhysicalDevice& device_handle : devices) {
     std::unique_ptr<PhysicalDevice> device(new PhysicalDevice(device_handle));
-    const auto& queue_families_exp = QueueFamilies::New(device_handle);
+    const auto& queue_families_exp = QueueFamilies::New(device_handle, surface);
     if (!queue_families_exp.has_value()) {
       if (queue_families_exp.error().kind == kCoreError &&
           queue_families_exp.error().error.core ==

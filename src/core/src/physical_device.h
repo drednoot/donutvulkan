@@ -14,7 +14,8 @@ namespace core {
 
 class PhysicalDevice {
  public:
-  static std::expected<PhysicalDevice*, Result> New(VkInstance instance);
+  static std::expected<PhysicalDevice*, Result> New(VkInstance instance,
+                                                    VkSurfaceKHR surface);
 
   const QueueFamilies& GetQueueFamilies() const;
   operator const VkPhysicalDevice&() const;

@@ -11,7 +11,8 @@
 namespace core {
 
 std::expected<QueueFamilies, Result> QueueFamilies::New(
-    VkPhysicalDevice physical_device) {
+    VkPhysicalDevice physical_device,
+    VkSurfaceKHR surface) {
   QueueFamilies families;
 
   uint32_t queue_family_count = 0;
@@ -21,20 +22,28 @@ std::expected<QueueFamilies, Result> QueueFamilies::New(
   vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count,
                                            queue_families.data());
 
-  VkQueueFlags all_flags = kRequiredFamilies;
+  uint32_t required_families = kRequiredFamilies;
   for (uint32_t i = 0; i < queue_families.size(); ++i) {
     const VkQueueFamilyProperties& queue_family = queue_families[i];
     if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      families.graphics_family = i;
-      all_flags &= ~VK_QUEUE_GRAPHICS_BIT;
+      families.graphics = i;
+      required_families &= ~kGraphicsFamily;
     }
 
-    if (all_flags == 0) {
+    VkBool32 present_support = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface,
+                                         &present_support);
+    if (present_support) {
+      families.present = i;
+      required_families &= ~kPresentSupportFamily;
+    }
+
+    if (required_families == 0) {
       break;
     }
   }
 
-  if (all_flags != 0) {
+  if (required_families != 0) {
     return std::unexpected(Result(kNotAllRequiredQueueFamiliesArePresent));
   }
 
