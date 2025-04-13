@@ -19,17 +19,6 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
-  rend->d->instance_ = TRY(rend->d->NewVkInstance());
-  rend->d->surface_ = TRY(rend->d->NewSurface());
-  rend->d->physical_device_.reset(
-      TRY(PhysicalDevice::New(rend->d->instance_, rend->d->surface_)));
-  rend->d->device_ = TRY(rend->d->NewLogicalDevice());
-  vkGetDeviceQueue(rend->d->device_,
-                   rend->d->physical_device_->GetQueueFamilies().graphics, 0,
-                   &rend->d->graphics_queue_);
-  vkGetDeviceQueue(rend->d->device_,
-                   rend->d->physical_device_->GetQueueFamilies().present, 0,
-                   &rend->d->present_queue_);
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -41,6 +30,18 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     return std::unexpected(Result(CoreError::kCouldNotInitializeGlfwWindow));
   }
   rend->d->window_ = window;
+
+  rend->d->instance_ = TRY(rend->d->NewVkInstance());
+  rend->d->surface_ = TRY(rend->d->NewSurface());
+  rend->d->physical_device_.reset(
+      TRY(PhysicalDevice::New(rend->d->instance_, rend->d->surface_)));
+  rend->d->device_ = TRY(rend->d->NewLogicalDevice());
+  vkGetDeviceQueue(rend->d->device_,
+                   rend->d->physical_device_->GetQueueFamilies().graphics, 0,
+                   &rend->d->graphics_queue_);
+  vkGetDeviceQueue(rend->d->device_,
+                   rend->d->physical_device_->GetQueueFamilies().present, 0,
+                   &rend->d->present_queue_);
 
   rend->d->cfg_ = config;
   rend->d->buffer_.resize(config.width * config.height);
