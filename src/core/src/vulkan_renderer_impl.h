@@ -6,41 +6,43 @@
 
 #include <chrono>
 #include <expected>
+#include <memory>
 #include <vector>
 
+#include "core/result.h"
 #include "core/vulkan_renderer.h"
 
-#include "queue_families.h"
+#include "physical_device.h"
 
 namespace core {
 
 struct VulkanRenderer::Impl {
   // vulkan stuff
-  std::expected<VkInstance, VkResult> CreateVkInstance();
+  std::expected<VkInstance, VkResult> NewVkInstance();
 #ifndef NDEBUG
   static std::vector<const char*> GetAvailableValidationLayers();
 #endif
-  std::expected<VkPhysicalDevice, Result> GetSuitablePhysicalDevice();
-  static bool IsDeviceSuitable(VkPhysicalDevice device);
-  static QueueFamilies GetQueueFamilies(VkPhysicalDevice device);
+  std::expected<VkPhysicalDevice, Result> NewSuitablePhysicalDevice();
+  std::expected<VkDevice, Result> NewLogicalDevice();
 
   void DrawBuffer() const;
 
   void MoveCursorTo(int x, int y) const;
 
-  VulkanRendererConfig cfg_;
+  VulkanRendererConfig cfg_ = {};
 
-  GLFWwindow* window_;
-  VkInstance instance_;
-  VkPhysicalDevice device_;
+  GLFWwindow* window_ = nullptr;
+  VkInstance instance_ = VK_NULL_HANDLE;
+  std::unique_ptr<PhysicalDevice> physical_device_;
+  VkDevice device_ = VK_NULL_HANDLE;
 
 #ifndef NDEBUG
-  bool is_validation_layers_enabled_;
+  bool is_validation_layers_enabled_ = false;
 #endif
 
   std::vector<char> buffer_;
   std::vector<double> z_buffer_;
-  double screen_ratio_;
+  double screen_ratio_ = 0.0;
 
   std::chrono::nanoseconds target_ns_;
   std::chrono::nanoseconds start_time_;

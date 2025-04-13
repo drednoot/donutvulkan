@@ -15,7 +15,7 @@
 #include <memory>
 #include <thread>
 
-#include "queue_families.h"
+#include "physical_device.h"
 
 namespace core {
 
@@ -23,7 +23,9 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
-  rend->d->instance_ = TRY(rend->d->CreateVkInstance());
+  rend->d->instance_ = TRY(rend->d->NewVkInstance());
+  rend->d->physical_device_.reset(TRY(PhysicalDevice::New(rend->d->instance_)));
+  rend->d->device_ = TRY(rend->d->NewLogicalDevice());
 
   glfwInit();
 
@@ -56,6 +58,10 @@ VulkanRenderer::~VulkanRenderer() {
 
   if (d->instance_) {
     vkDestroyInstance(d->instance_, nullptr);
+  }
+
+  if (d->device_ != VK_NULL_HANDLE) {
+    vkDestroyDevice(d->device_, nullptr);
   }
 
   glfwTerminate();
@@ -153,7 +159,7 @@ double VulkanRenderer::TimeLived() const {
   return NsToSeconds(from_start);
 }
 
-std::expected<VkInstance, VkResult> VulkanRenderer::Impl::CreateVkInstance() {
+std::expected<VkInstance, VkResult> VulkanRenderer::Impl::NewVkInstance() {
   VkApplicationInfo app_info{};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   app_info.pApplicationName = "donutvulkan";
@@ -230,62 +236,33 @@ std::vector<const char*> VulkanRenderer::Impl::GetAvailableValidationLayers() {
 }
 #endif
 
-std::expected<VkPhysicalDevice, Result>
-VulkanRenderer::Impl::GetSuitablePhysicalDevice() {
-  VkPhysicalDevice physical_device = VK_NULL_HANDLE;
-  uint32_t device_count = 0;
-  vkEnumeratePhysicalDevices(instance_, &device_count, nullptr);
+std::expected<VkDevice, Result> VulkanRenderer::Impl::NewLogicalDevice() {
+  VkDeviceQueueCreateInfo queue_create_info{};
+  queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queue_create_info.queueFamilyIndex =
+      physical_device_->GetQueueFamilies().graphics_family;
+  queue_create_info.queueCount = 1;
 
-  if (device_count < 1) {
-    return std::unexpected(Result(CoreError::kNoGpuWithVulkanSupport));
+  float queue_priority = 1.0f;
+  queue_create_info.pQueuePriorities = &queue_priority;
+
+  VkPhysicalDeviceFeatures device_features{};
+
+  VkDeviceCreateInfo device_create_info{};
+  device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  device_create_info.pQueueCreateInfos = &queue_create_info;
+  device_create_info.queueCreateInfoCount = 1;
+  device_create_info.pEnabledFeatures = &device_features;
+  device_create_info.enabledExtensionCount = 0;
+
+  VkDevice device;
+  VkResult res =
+      vkCreateDevice(*physical_device_, &device_create_info, nullptr, &device);
+  if (res != VK_SUCCESS) {
+    return std::unexpected(Result(res));
   }
 
-  std::vector<VkPhysicalDevice> devices(device_count);
-  vkEnumeratePhysicalDevices(instance_, &device_count, devices.data());
-
-  for (const VkPhysicalDevice& device : devices) {
-    if (IsDeviceSuitable(device)) {
-      physical_device = device;
-      break;
-    }
-  }
-
-  if (physical_device == VK_NULL_HANDLE) {
-    return std::unexpected(Result(CoreError::kNoSuitableGpu));
-  }
-
-  return physical_device;
-}
-
-bool VulkanRenderer::Impl::IsDeviceSuitable(VkPhysicalDevice device) {
-  const QueueFamilies& queue_families = GetQueueFamilies(device);
-
-  if (!queue_families.graphics_family.has_value()) {
-    return false;
-  }
-
-  return true;
-}
-
-QueueFamilies VulkanRenderer::Impl::GetQueueFamilies(VkPhysicalDevice device) {
-  QueueFamilies families;
-
-  uint32_t queue_family_count = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
-                                           nullptr);
-  std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
-                                           queue_families.data());
-
-  for (uint32_t i = 0; i < queue_families.size(); ++i) {
-    const VkQueueFamilyProperties& queue_family = queue_families[i];
-    if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      families.graphics_family = i;
-      break;
-    }
-  }
-
-  return families;
+  return device;
 }
 
 void VulkanRenderer::Impl::DrawBuffer() const {

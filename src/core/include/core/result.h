@@ -20,6 +20,7 @@ enum CoreError {
   kCouldNotInitializeGlfwWindow = 0,
   kNoGpuWithVulkanSupport,
   kNoSuitableGpu,
+  kNotAllRequiredQueueFamiliesArePresent,
 };
 
 const char* CoreErrorToString(CoreError e);

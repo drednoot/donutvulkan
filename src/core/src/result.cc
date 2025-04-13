@@ -8,6 +8,11 @@ const char* CoreErrorToString(CoreError e) {
   switch (e) {
     case kCouldNotInitializeGlfwWindow:
       return "Could not initialize GLFW Window";
+    case kNoGpuWithVulkanSupport:
+    case kNoSuitableGpu:
+      return "Could not find GPU with proper vulkan support";
+    case kNotAllRequiredQueueFamiliesArePresent:
+      return "Not all required Queue Families are Present in Physical Device";
     default:
       return "Unknown error code";
   }

@@ -19,10 +19,10 @@ class VulkanRenderHandler {
 };
 
 struct VulkanRendererConfig {
-  int width;
-  int height;
-  int target_fps;
-  VulkanRenderHandler* render_handler;
+  int width = 0;
+  int height = 0;
+  int target_fps = 0;
+  VulkanRenderHandler* render_handler = nullptr;
 };
 
 class VulkanRenderer {

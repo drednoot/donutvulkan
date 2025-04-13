@@ -1,6 +1,8 @@
 add_library(core
   SHARED
   src/vulkan_renderer_impl.cc
+  src/queue_families.cc
+  src/physical_device.cc
   src/rotation.cc
   src/result.cc
 )
