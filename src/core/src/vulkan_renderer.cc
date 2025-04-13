@@ -27,7 +27,9 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
   vkGetDeviceQueue(rend->d->device_,
                    rend->d->physical_device_->GetQueueFamilies().graphics, 0,
                    &rend->d->graphics_queue_);
-
+  vkGetDeviceQueue(rend->d->device_,
+                   rend->d->physical_device_->GetQueueFamilies().present, 0,
+                   &rend->d->present_queue_);
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

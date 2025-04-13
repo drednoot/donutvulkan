@@ -12,6 +12,7 @@
 #include <expected>
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include "physical_device.h"
 
@@ -106,21 +107,30 @@ std::expected<VkSurfaceKHR, VkResult> VulkanRenderer::Impl::NewSurface() {
 }
 
 std::expected<VkDevice, VkResult> VulkanRenderer::Impl::NewLogicalDevice() {
-  VkDeviceQueueCreateInfo queue_create_info{};
-  queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queue_create_info.queueFamilyIndex =
-      physical_device_->GetQueueFamilies().graphics;
-  queue_create_info.queueCount = 1;
-
-  float queue_priority = 1.0f;
-  queue_create_info.pQueuePriorities = &queue_priority;
-
   VkPhysicalDeviceFeatures device_features{};
 
   VkDeviceCreateInfo device_create_info{};
   device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  device_create_info.pQueueCreateInfos = &queue_create_info;
-  device_create_info.queueCreateInfoCount = 1;
+
+  std::set<uint32_t> unique_queue_families = {
+      physical_device_->GetQueueFamilies().graphics,
+      physical_device_->GetQueueFamilies().present};
+  std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+  queue_create_infos.reserve(unique_queue_families.size());
+
+  for (uint32_t queue_family_index : unique_queue_families) {
+    VkDeviceQueueCreateInfo queue_create_info{};
+    queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_create_info.queueFamilyIndex = queue_family_index;
+    queue_create_info.queueCount = 1;
+
+    const float queue_priority = 1.0f;
+    queue_create_info.pQueuePriorities = &queue_priority;
+  }
+
+  device_create_info.pQueueCreateInfos = queue_create_infos.data();
+  device_create_info.queueCreateInfoCount = queue_create_infos.size();
+
   device_create_info.pEnabledFeatures = &device_features;
   device_create_info.enabledExtensionCount = 0;
 
