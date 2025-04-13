@@ -26,6 +26,10 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
   rend->d->instance_ = TRY(rend->d->NewVkInstance());
   rend->d->physical_device_.reset(TRY(PhysicalDevice::New(rend->d->instance_)));
   rend->d->device_ = TRY(rend->d->NewLogicalDevice());
+  vkGetDeviceQueue(
+      rend->d->device_,
+      rend->d->physical_device_->GetQueueFamilies().graphics_family, 0,
+      &rend->d->graphics_queue_);
 
   glfwInit();
 

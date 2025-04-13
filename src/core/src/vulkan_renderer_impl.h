@@ -35,6 +35,7 @@ struct VulkanRenderer::Impl {
   VkInstance instance_ = VK_NULL_HANDLE;
   std::unique_ptr<PhysicalDevice> physical_device_;
   VkDevice device_ = VK_NULL_HANDLE;
+  VkQueue graphics_queue_ = VK_NULL_HANDLE;
 
 #ifndef NDEBUG
   bool is_validation_layers_enabled_ = false;
