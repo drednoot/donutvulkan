@@ -6,6 +6,7 @@
 
 #include "consts.h"
 #include "queue_families.h"
+#include "swap_chain_support_details.h"
 
 namespace core {
 
@@ -25,7 +26,8 @@ std::expected<PhysicalDevice*, Result> PhysicalDevice::New(
   std::unique_ptr<PhysicalDevice> device_ptr;
 
   for (const VkPhysicalDevice& device_handle : devices) {
-    std::unique_ptr<PhysicalDevice> device(new PhysicalDevice(device_handle));
+    std::unique_ptr<PhysicalDevice> device(
+        new PhysicalDevice(device_handle, surface));
     const auto& queue_families_exp = QueueFamilies::New(device_handle, surface);
     if (!queue_families_exp.has_value()) {
       if (queue_families_exp.error().kind == kCoreError &&
@@ -56,19 +58,23 @@ const QueueFamilies& PhysicalDevice::GetQueueFamilies() const {
 }
 
 PhysicalDevice::operator const VkPhysicalDevice&() const {
-  return device_;
+  return physical_device_;
 }
 
-PhysicalDevice::PhysicalDevice(VkPhysicalDevice device) : device_(device) {}
+PhysicalDevice::PhysicalDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
+    : physical_device_(device), surface_(surface) {}
 
 bool PhysicalDevice::IsSuitable() {
   uint32_t extension_count;
-  vkEnumerateDeviceExtensionProperties(device_, nullptr, &extension_count,
-                                       nullptr);
+  VkResult res = vkEnumerateDeviceExtensionProperties(
+      physical_device_, nullptr, &extension_count, nullptr);
+  if (res != VK_SUCCESS) {
+    return false;
+  }
 
   std::vector<VkExtensionProperties> extension_properties(extension_count);
-  vkEnumerateDeviceExtensionProperties(device_, nullptr, &extension_count,
-                                       extension_properties.data());
+  vkEnumerateDeviceExtensionProperties(
+      physical_device_, nullptr, &extension_count, extension_properties.data());
 
   for (const char* required_extension : consts::kDeviceExtensions) {
     bool found = false;
@@ -84,6 +90,11 @@ bool PhysicalDevice::IsSuitable() {
     if (!found) {
       return false;
     }
+  }
+
+  const auto& exp = SwapChainSupportDetails::New(physical_device_, surface_);
+  if (!exp) {
+    return false;
   }
 
   return true;

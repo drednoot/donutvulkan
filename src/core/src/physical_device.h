@@ -21,11 +21,12 @@ class PhysicalDevice {
   operator const VkPhysicalDevice&() const;
 
  private:
-  PhysicalDevice(VkPhysicalDevice device);
+  PhysicalDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
 
   bool IsSuitable();
 
-  VkPhysicalDevice device_;
+  VkPhysicalDevice physical_device_;
+  VkSurfaceKHR surface_;
   QueueFamilies queue_families_;
 };
 

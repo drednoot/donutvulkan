@@ -1,6 +1,7 @@
 add_library(core
   SHARED
   src/vulkan_renderer_impl.cc
+  src/swap_chain_support_details.cc
   src/vulkan_renderer.cc
   src/queue_families.cc
   src/physical_device.cc

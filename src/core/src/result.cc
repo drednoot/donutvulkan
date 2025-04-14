@@ -13,6 +13,10 @@ const char* CoreErrorToString(CoreError e) {
       return "Could not find GPU with proper vulkan support";
     case kNotAllRequiredQueueFamiliesArePresent:
       return "Not all required Queue Families are Present in Physical Device";
+    case kNoAvailableSurfaceFormats:
+      return "Physical Device doesn't have any available surface formats";
+    case kNoAvailableSurfacePresentModes:
+      return "Physical Device doesn't have any available surface present modes";
     default:
       return "Unknown error code";
   }

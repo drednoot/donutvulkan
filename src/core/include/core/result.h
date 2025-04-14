@@ -21,6 +21,8 @@ enum CoreError {
   kNoGpuWithVulkanSupport,
   kNoSuitableGpu,
   kNotAllRequiredQueueFamiliesArePresent,
+  kNoAvailableSurfaceFormats,
+  kNoAvailableSurfacePresentModes,
 };
 
 const char* CoreErrorToString(CoreError e);
@@ -35,6 +37,8 @@ struct Result {
   Result(CoreError core_error)
       : kind(kCoreError), error({.core = core_error}) {}
   Result(VkResult vk_error) : kind(kVkError), error({.vk = vk_error}) {}
+
+  operator bool() const { return kind == kNoError; };
 
   ResultKind kind;
   union {
