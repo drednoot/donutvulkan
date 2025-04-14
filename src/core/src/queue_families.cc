@@ -8,6 +8,8 @@
 
 #include "core/result.h"
 
+#include "consts.h"
+
 namespace core {
 
 std::expected<QueueFamilies, Result> QueueFamilies::New(
@@ -22,7 +24,7 @@ std::expected<QueueFamilies, Result> QueueFamilies::New(
   vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count,
                                            queue_families.data());
 
-  uint32_t required_families = kRequiredFamilies;
+  uint32_t required_families = consts::kRequiredFamilies;
   for (uint32_t i = 0; i < queue_families.size(); ++i) {
     const VkQueueFamilyProperties& queue_family = queue_families[i];
     if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {

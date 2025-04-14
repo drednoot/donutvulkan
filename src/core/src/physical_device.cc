@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "consts.h"
 #include "queue_families.h"
 
 namespace core {

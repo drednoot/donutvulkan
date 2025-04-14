@@ -12,19 +12,17 @@
 namespace core {
 
 struct QueueFamilies {
+  enum SupportedFamilies {
+    kGraphicsFamily = 0x1,
+    kPresentSupportFamily = 0x2,
+  };
+
   uint32_t graphics;
   uint32_t present;
 
   static std::expected<QueueFamilies, Result> New(
       VkPhysicalDevice physical_device,
       VkSurfaceKHR surface);
-
- private:
-  enum RequireFamilies {
-    kGraphicsFamily = 0x1,
-    kPresentSupportFamily = 0x2,
-    kRequiredFamilies = kGraphicsFamily & kPresentSupportFamily,
-  };
 };
 
 }  // namespace core

@@ -14,6 +14,7 @@
 #include <memory>
 #include <set>
 
+#include "consts.h"
 #include "physical_device.h"
 
 namespace core {
@@ -133,7 +134,8 @@ std::expected<VkDevice, VkResult> VulkanRenderer::Impl::NewLogicalDevice() {
   device_create_info.queueCreateInfoCount = queue_create_infos.size();
 
   device_create_info.pEnabledFeatures = &device_features;
-  device_create_info.enabledExtensionCount = 0;
+  device_create_info.enabledExtensionCount = consts::kDeviceExtensions.size();
+  device_create_info.ppEnabledExtensionNames = consts::kDeviceExtensions.data();
 
   VkDevice device;
   VkResult res =
