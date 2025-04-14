@@ -1,4 +1,4 @@
-# donutcpp
+# donutvulkan
 
 # requirements to run
 
