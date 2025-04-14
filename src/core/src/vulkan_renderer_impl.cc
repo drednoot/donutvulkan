@@ -41,7 +41,8 @@ std::expected<VkInstance, VkResult> VulkanRenderer::Impl::NewVkInstance() {
   create_info.ppEnabledExtensionNames = glfw_extensions;
 
 #ifndef NDEBUG
-  std::vector<const char*> available_layers = GetAvailableValidationLayers();
+  const std::vector<const char*>& available_layers =
+      TRY(GetAvailableValidationLayers());
   create_info.enabledLayerCount = available_layers.size();
   create_info.ppEnabledLayerNames = available_layers.data();
   if (!available_layers.empty()) {
@@ -54,25 +55,23 @@ std::expected<VkInstance, VkResult> VulkanRenderer::Impl::NewVkInstance() {
 #endif
 
   VkInstance instance;
-  VkResult result = vkCreateInstance(&create_info, nullptr, &instance);
-
-  if (result != VK_SUCCESS) {
-    return std::unexpected(result);
-  }
+  TRY_VK_SUCCESS(vkCreateInstance(&create_info, nullptr, &instance));
 
   return instance;
 }
 
 #ifndef NDEBUG
-std::vector<const char*> VulkanRenderer::Impl::GetAvailableValidationLayers() {
+std::expected<std::vector<const char*>, VkResult>
+VulkanRenderer::Impl::GetAvailableValidationLayers() {
   std::array<const char*, 1> validation_layers = {
       "VK_LAYER_KHRONOS_validation"};
   std::vector<const char*> enabled_layer_names;
 
   uint32_t layer_count;
-  vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+  TRY_VK_SUCCESS(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
   std::vector<VkLayerProperties> layers_available(layer_count);
-  vkEnumerateInstanceLayerProperties(&layer_count, layers_available.data());
+  TRY_VK_SUCCESS(vkEnumerateInstanceLayerProperties(&layer_count,
+                                                    layers_available.data()));
 
   for (const char* layer_name : validation_layers) {
     bool found = false;
@@ -98,11 +97,8 @@ std::vector<const char*> VulkanRenderer::Impl::GetAvailableValidationLayers() {
 
 std::expected<VkSurfaceKHR, VkResult> VulkanRenderer::Impl::NewSurface() {
   VkSurfaceKHR surface;
-  VkResult res = glfwCreateWindowSurface(instance_, window_, nullptr, &surface);
-
-  if (res != VK_SUCCESS) {
-    return std::unexpected(res);
-  }
+  TRY_VK_SUCCESS(
+      glfwCreateWindowSurface(instance_, window_, nullptr, &surface));
 
   return surface;
 }
@@ -138,11 +134,8 @@ std::expected<VkDevice, VkResult> VulkanRenderer::Impl::NewLogicalDevice() {
   device_create_info.ppEnabledExtensionNames = consts::kDeviceExtensions.data();
 
   VkDevice device;
-  VkResult res =
-      vkCreateDevice(*physical_device_, &device_create_info, nullptr, &device);
-  if (res != VK_SUCCESS) {
-    return std::unexpected(res);
-  }
+  TRY_VK_SUCCESS(
+      vkCreateDevice(*physical_device_, &device_create_info, nullptr, &device));
 
   return device;
 }

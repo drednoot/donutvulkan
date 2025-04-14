@@ -29,14 +29,12 @@ const char* CoreErrorToString(CoreError e);
  * Result type is used to have the result of an operation.
  * Default constructor means no error occurred
  * (Result().kind == ResultKind::kNoError).
- * other constructors are explicit
  */
 struct Result {
   Result() : kind(kNoError), error({.no_error = NoError{}}) {}
-  explicit Result(CoreError core_error)
+  Result(CoreError core_error)
       : kind(kCoreError), error({.core = core_error}) {}
-  explicit Result(VkResult vk_error)
-      : kind(kVkError), error({.vk = vk_error}) {}
+  Result(VkResult vk_error) : kind(kVkError), error({.vk = vk_error}) {}
 
   ResultKind kind;
   union {
@@ -48,13 +46,21 @@ struct Result {
 
 const char* ResultToString(Result r);
 
-#define TRY(expr)                                        \
-  ({                                                     \
-    const auto& exp = expr;                              \
-    if (!exp) {                                          \
-      return std::unexpected(core::Result(exp.error())); \
-    }                                                    \
-    *exp;                                                \
+#define TRY(expr)                          \
+  ({                                       \
+    const auto& exp = expr;                \
+    if (!exp) {                            \
+      return std::unexpected(exp.error()); \
+    }                                      \
+    *exp;                                  \
+  })
+
+#define TRY_VK_SUCCESS(expr)       \
+  ({                               \
+    VkResult res = expr;           \
+    if (res != VK_SUCCESS) {       \
+      return std::unexpected(res); \
+    }                              \
   })
 
 }  // namespace core

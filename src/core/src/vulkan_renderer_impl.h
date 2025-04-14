@@ -19,7 +19,8 @@ struct VulkanRenderer::Impl {
   // vulkan stuff
   std::expected<VkInstance, VkResult> NewVkInstance();
 #ifndef NDEBUG
-  static std::vector<const char*> GetAvailableValidationLayers();
+  static std::expected<std::vector<const char*>, VkResult>
+  GetAvailableValidationLayers();
 #endif
   std::expected<VkSurfaceKHR, VkResult> NewSurface();
   std::expected<VkDevice, VkResult> NewLogicalDevice();
