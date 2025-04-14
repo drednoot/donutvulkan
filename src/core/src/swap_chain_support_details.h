@@ -12,13 +12,21 @@
 namespace core {
 
 struct SwapChainSupportDetails {
+ public:
   VkSurfaceCapabilitiesKHR capabilites;
-  std::vector<VkSurfaceFormatKHR> formats;
-  std::vector<VkPresentModeKHR> present_modes;
+  VkSurfaceFormatKHR surface_format;
+  VkPresentModeKHR present_mode;
 
   static std::expected<SwapChainSupportDetails, Result> New(
       VkPhysicalDevice physical_device,
       VkSurfaceKHR surface);
+
+ private:
+  static VkSurfaceFormatKHR GetSwapSurfaceFormat(
+      const std::vector<VkSurfaceFormatKHR>& available_formats);
+
+  static VkPresentModeKHR GetPresentMode(
+      const std::vector<VkPresentModeKHR>& available_present_modes);
 };
 
 }  // namespace core
