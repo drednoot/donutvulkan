@@ -4,6 +4,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <array>
 #include <expected>
 
 #include "core/result.h"
@@ -30,5 +31,13 @@ class PhysicalDevice {
 };
 
 }  // namespace core
+
+namespace consts {
+
+const inline std::array<const char*, 1> kDeviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+};
+
+}  // namespace consts
 
 #endif  // DONUTCPP_CORE_PHYSICAL_DEVICE_H_

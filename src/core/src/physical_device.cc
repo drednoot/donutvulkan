@@ -1,5 +1,6 @@
 #include "physical_device.h"
 
+#include <cstring>
 #include <memory>
 #include <vector>
 
@@ -60,6 +61,30 @@ PhysicalDevice::operator const VkPhysicalDevice&() const {
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice device) : device_(device) {}
 
 bool PhysicalDevice::IsSuitable() {
+  uint32_t extension_count;
+  vkEnumerateDeviceExtensionProperties(device_, nullptr, &extension_count,
+                                       nullptr);
+
+  std::vector<VkExtensionProperties> extension_properties(extension_count);
+  vkEnumerateDeviceExtensionProperties(device_, nullptr, &extension_count,
+                                       extension_properties.data());
+
+  for (const char* required_extension : consts::kDeviceExtensions) {
+    bool found = false;
+
+    for (const VkExtensionProperties& available_extension :
+         extension_properties) {
+      if (strcmp(required_extension, available_extension.extensionName) == 0) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      return false;
+    }
+  }
+
   return true;
 }
 
