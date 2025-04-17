@@ -60,12 +60,20 @@ const char* ResultToString(Result r);
   })
 
 #define TRY_VK_SUCCESS(expr)       \
-  ({                               \
+  {                                \
     VkResult res = expr;           \
     if (res != VK_SUCCESS) {       \
       return std::unexpected(res); \
     }                              \
-  })
+  }
+
+#define TRY_RESULT_NO_ERROR(expr)                 \
+  {                                               \
+    Result res = expr;                            \
+    if (res.kind != core::ResultKind::kNoError) { \
+      return std::unexpected(res);                \
+    }                                             \
+  }
 
 #define TRY_RESULT(expr)    \
   ({                        \

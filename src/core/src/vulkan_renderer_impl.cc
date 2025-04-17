@@ -13,12 +13,71 @@
 #include <iostream>
 #include <memory>
 #include <set>
+#include <thread>
 
 #include "consts.h"
 #include "physical_device.h"
 #include "swap_chain_support_details.h"
 
 namespace core {
+
+Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
+  glfwInit();
+
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  GLFWwindow* window = glfwCreateWindow(config.width, config.height,
+                                        "Vulkan window", nullptr, nullptr);
+
+  if (!window) {
+    return kCouldNotInitializeGlfwWindow;
+  }
+  window_ = window;
+
+  instance_ = TRY_RESULT(NewVkInstance());
+  surface_ = TRY_RESULT(NewSurface());
+  physical_device_.reset(TRY_RESULT(PhysicalDevice::New(instance_, surface_)));
+  device_ = TRY_RESULT(NewLogicalDevice());
+  vkGetDeviceQueue(device_, physical_device_->GetQueueFamilies().graphics, 0,
+                   &graphics_queue_);
+  vkGetDeviceQueue(device_, physical_device_->GetQueueFamilies().present, 0,
+                   &present_queue_);
+
+  swap_chain_ = TRY_RESULT(NewSwapChain());
+
+  cfg_ = config;
+  buffer_.resize(config.width * config.height);
+  z_buffer_.resize(config.width * config.height);
+  screen_ratio_ = config.width / (double)config.height;
+  target_ns_ =
+      std::chrono::nanoseconds(std::chrono::seconds(1)) / config.target_fps;
+
+  return Result();
+}
+
+VulkanRenderer::Impl::~Impl() {
+  if (window_) {
+    glfwDestroyWindow(window_);
+  }
+
+  if (instance_ && surface_) {
+    vkDestroySurfaceKHR(instance_, surface_, nullptr);
+  }
+
+  if (instance_) {
+    vkDestroyInstance(instance_, nullptr);
+  }
+
+  if (swap_chain_) {
+    vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
+  }
+
+  if (device_) {
+    vkDestroyDevice(device_, nullptr);
+  }
+
+  glfwTerminate();
+}
 
 std::expected<VkInstance, VkResult> VulkanRenderer::Impl::NewVkInstance() {
   VkApplicationInfo app_info{};
@@ -181,6 +240,30 @@ std::expected<VkSwapchainKHR, Result> VulkanRenderer::Impl::NewSwapChain()
       vkCreateSwapchainKHR(device_, &create_info, nullptr, &swap_chain));
 
   return swap_chain;
+}
+
+void VulkanRenderer::Impl::Start() {
+  std::chrono::nanoseconds frame_time = target_ns_;
+  // double delta = NsToSeconds(target_ns_);
+  start_time_ = std::chrono::system_clock::now().time_since_epoch();
+
+  while (!glfwWindowShouldClose(window_)) {
+    std::chrono::time_point before_render =
+        std::chrono::high_resolution_clock::now();
+    // Clear();
+    // Render(delta);
+    glfwPollEvents();
+    // DrawBuffer();
+    std::chrono::time_point after_render =
+        std::chrono::high_resolution_clock::now();
+    frame_time = after_render - before_render;
+    // delta = frame_time > target_ns_ ? NsToSeconds(frame_time)
+    //                                 : NsToSeconds(target_ns_);
+
+    if (frame_time < target_ns_) {
+      std::this_thread::sleep_for(target_ns_ - frame_time);
+    }
+  }
 }
 
 void VulkanRenderer::Impl::DrawBuffer() const {

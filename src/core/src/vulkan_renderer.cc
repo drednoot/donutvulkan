@@ -6,11 +6,9 @@
 #include <chrono>
 #include <expected>
 #include <memory>
-#include <thread>
 
 #include "core/result.h"
 
-#include "physical_device.h"
 #include "vulkan_renderer_impl.h"
 
 namespace core {
@@ -19,90 +17,17 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
-  glfwInit();
-
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-  GLFWwindow* window = glfwCreateWindow(config.width, config.height,
-                                        "Vulkan window", nullptr, nullptr);
-
-  if (!window) {
-    return std::unexpected(Result(CoreError::kCouldNotInitializeGlfwWindow));
-  }
-  rend->d->window_ = window;
-
-  rend->d->instance_ = TRY(rend->d->NewVkInstance());
-  rend->d->surface_ = TRY(rend->d->NewSurface());
-  rend->d->physical_device_.reset(
-      TRY(PhysicalDevice::New(rend->d->instance_, rend->d->surface_)));
-  rend->d->device_ = TRY(rend->d->NewLogicalDevice());
-  vkGetDeviceQueue(rend->d->device_,
-                   rend->d->physical_device_->GetQueueFamilies().graphics, 0,
-                   &rend->d->graphics_queue_);
-  vkGetDeviceQueue(rend->d->device_,
-                   rend->d->physical_device_->GetQueueFamilies().present, 0,
-                   &rend->d->present_queue_);
-
-  rend->d->swap_chain_ = TRY(rend->d->NewSwapChain());
-
-  rend->d->cfg_ = config;
-  rend->d->buffer_.resize(config.width * config.height);
-  rend->d->z_buffer_.resize(config.width * config.height);
-  rend->d->screen_ratio_ = config.width / (double)config.height;
-  rend->d->target_ns_ =
-      std::chrono::nanoseconds(std::chrono::seconds(1)) / config.target_fps;
+  TRY_RESULT_NO_ERROR(rend->d->New(config));
 
   return rend.release();
 }
 
 VulkanRenderer::VulkanRenderer() : d(std::make_unique<Impl>()) {}
 
-VulkanRenderer::~VulkanRenderer() {
-  if (d->window_) {
-    glfwDestroyWindow(d->window_);
-  }
-
-  if (d->instance_ && d->surface_) {
-    vkDestroySurfaceKHR(d->instance_, d->surface_, nullptr);
-  }
-
-  if (d->instance_) {
-    vkDestroyInstance(d->instance_, nullptr);
-  }
-
-  if (d->swap_chain_) {
-    vkDestroySwapchainKHR(d->device_, d->swap_chain_, nullptr);
-  }
-
-  if (d->device_) {
-    vkDestroyDevice(d->device_, nullptr);
-  }
-
-  glfwTerminate();
-}
+VulkanRenderer::~VulkanRenderer() = default;
 
 void VulkanRenderer::Start() {
-  std::chrono::nanoseconds frame_time = d->target_ns_;
-  // double delta = NsToSeconds(target_ns_);
-  d->start_time_ = std::chrono::system_clock::now().time_since_epoch();
-
-  while (!glfwWindowShouldClose(d->window_)) {
-    std::chrono::time_point before_render =
-        std::chrono::high_resolution_clock::now();
-    // Clear();
-    // Render(delta);
-    glfwPollEvents();
-    // DrawBuffer();
-    std::chrono::time_point after_render =
-        std::chrono::high_resolution_clock::now();
-    frame_time = after_render - before_render;
-    // delta = frame_time > target_ns_ ? NsToSeconds(frame_time)
-    //                                 : NsToSeconds(target_ns_);
-
-    if (frame_time < d->target_ns_) {
-      std::this_thread::sleep_for(d->target_ns_ - frame_time);
-    }
-  }
+  d->Start();
 }
 
 void VulkanRenderer::Clear() {

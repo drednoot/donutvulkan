@@ -16,6 +16,14 @@
 namespace core {
 
 struct VulkanRenderer::Impl {
+  Result New(const VulkanRendererConfig& config);
+  Impl() = default;
+  Impl(const Impl&) = delete;
+  Impl(Impl&&) = delete;
+  Impl& operator=(const Impl&) = delete;
+  Impl& operator=(Impl&&) = delete;
+  ~Impl();
+
   // vulkan stuff
   std::expected<VkInstance, VkResult> NewVkInstance();
 #ifndef NDEBUG
@@ -25,6 +33,9 @@ struct VulkanRenderer::Impl {
   std::expected<VkSurfaceKHR, VkResult> NewSurface() const;
   std::expected<VkDevice, VkResult> NewLogicalDevice() const;
   std::expected<VkSwapchainKHR, Result> NewSwapChain() const;
+
+  // other stuff
+  void Start();
 
   void DrawBuffer() const;
 
