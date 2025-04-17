@@ -43,6 +43,8 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
                    rend->d->physical_device_->GetQueueFamilies().present, 0,
                    &rend->d->present_queue_);
 
+  rend->d->swap_chain_ = TRY(rend->d->NewSwapChain());
+
   rend->d->cfg_ = config;
   rend->d->buffer_.resize(config.width * config.height);
   rend->d->z_buffer_.resize(config.width * config.height);
@@ -66,6 +68,10 @@ VulkanRenderer::~VulkanRenderer() {
 
   if (d->instance_) {
     vkDestroyInstance(d->instance_, nullptr);
+  }
+
+  if (d->swap_chain_) {
+    vkDestroySwapchainKHR(d->device_, d->swap_chain_, nullptr);
   }
 
   if (d->device_) {

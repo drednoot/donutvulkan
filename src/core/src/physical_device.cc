@@ -1,5 +1,9 @@
 #include "physical_device.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -28,6 +32,7 @@ std::expected<PhysicalDevice*, Result> PhysicalDevice::New(
   for (const VkPhysicalDevice& device_handle : devices) {
     std::unique_ptr<PhysicalDevice> device(
         new PhysicalDevice(device_handle, surface));
+
     const auto& queue_families_exp = QueueFamilies::New(device_handle, surface);
     if (!queue_families_exp.has_value()) {
       if (queue_families_exp.error().kind == kCoreError &&
@@ -90,11 +95,6 @@ bool PhysicalDevice::IsSuitable() {
     if (!found) {
       return false;
     }
-  }
-
-  const auto& exp = SwapChainSupportDetails::New(physical_device_, surface_);
-  if (!exp) {
-    return false;
   }
 
   return true;

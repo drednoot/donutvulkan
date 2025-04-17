@@ -67,6 +67,15 @@ const char* ResultToString(Result r);
     }                              \
   })
 
+#define TRY_RESULT(expr)    \
+  ({                        \
+    const auto& exp = expr; \
+    if (!exp) {             \
+      return exp.error();   \
+    }                       \
+    *exp;                   \
+  })
+
 }  // namespace core
 
 #endif  // DONUTCPP_CORE_RESULT_H_

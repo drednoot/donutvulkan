@@ -22,8 +22,9 @@ struct VulkanRenderer::Impl {
   static std::expected<std::vector<const char*>, VkResult>
   GetAvailableValidationLayers();
 #endif
-  std::expected<VkSurfaceKHR, VkResult> NewSurface();
-  std::expected<VkDevice, VkResult> NewLogicalDevice();
+  std::expected<VkSurfaceKHR, VkResult> NewSurface() const;
+  std::expected<VkDevice, VkResult> NewLogicalDevice() const;
+  std::expected<VkSwapchainKHR, Result> NewSwapChain() const;
 
   void DrawBuffer() const;
 
@@ -38,6 +39,7 @@ struct VulkanRenderer::Impl {
   VkDevice device_ = VK_NULL_HANDLE;
   VkQueue graphics_queue_ = VK_NULL_HANDLE;
   VkQueue present_queue_ = VK_NULL_HANDLE;
+  VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
 #ifndef NDEBUG
   bool is_validation_layers_enabled_ = false;

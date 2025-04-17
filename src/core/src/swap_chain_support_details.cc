@@ -3,7 +3,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <algorithm>
+#include <cstdint>
 #include <expected>
+#include <limits>
 
 #include "core/result.h"
 
@@ -11,11 +14,12 @@ namespace core {
 
 std::expected<SwapChainSupportDetails, Result> SwapChainSupportDetails::New(
     VkPhysicalDevice physical_device,
-    VkSurfaceKHR surface) {
+    VkSurfaceKHR surface,
+    GLFWwindow* window) {
   SwapChainSupportDetails details{};
 
   TRY_VK_SUCCESS(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-      physical_device, surface, &details.capabilites));
+      physical_device, surface, &details.capabilities));
 
   uint32_t format_count;
   TRY_VK_SUCCESS(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface,
@@ -39,7 +43,37 @@ std::expected<SwapChainSupportDetails, Result> SwapChainSupportDetails::New(
       physical_device, surface, &present_mode_count, present_modes.data());
   details.present_mode = GetPresentMode(present_modes);
 
+  details.extent = details.GetSwapExtent(window);
+
+  details.image_count = details.capabilities.minImageCount + 1;
+  if (details.capabilities.maxImageCount > 0 &&
+      details.image_count > details.capabilities.maxImageCount) {
+    details.image_count = details.capabilities.maxImageCount;
+  }
+
   return details;
+}
+
+VkExtent2D SwapChainSupportDetails::GetSwapExtent(GLFWwindow* window) {
+  if (capabilities.currentExtent.width !=
+      std::numeric_limits<uint32_t>::max()) {
+    return capabilities.currentExtent;
+  } else {
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+
+    VkExtent2D actual_extent = {static_cast<uint32_t>(width),
+                                static_cast<uint32_t>(height)};
+
+    actual_extent.width =
+        std::clamp(actual_extent.width, capabilities.minImageExtent.width,
+                   capabilities.maxImageExtent.width);
+    actual_extent.height =
+        std::clamp(actual_extent.height, capabilities.minImageExtent.height,
+                   capabilities.maxImageExtent.height);
+
+    return actual_extent;
+  }
 }
 
 VkSurfaceFormatKHR SwapChainSupportDetails::GetSwapSurfaceFormat(

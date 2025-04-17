@@ -9,6 +9,7 @@
 #include "core/result.h"
 
 #include "queue_families.h"
+#include "swap_chain_support_details.h"
 
 namespace core {
 
