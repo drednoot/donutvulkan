@@ -11,6 +11,7 @@
 
 #include "core/vulkan_renderer.h"
 
+#include "instance.h"
 #include "physical_device.h"
 
 namespace core {
@@ -26,11 +27,6 @@ struct VulkanRenderer::Impl {
 
   // vulkan stuff
   std::expected<VkInstance, VkResult> NewVkInstance();
-#ifndef NDEBUG
-  static std::expected<std::vector<const char*>, VkResult>
-  GetAvailableValidationLayers();
-#endif
-  std::expected<VkSurfaceKHR, VkResult> NewSurface() const;
   std::expected<VkDevice, VkResult> NewLogicalDevice() const;
   std::expected<VkSwapchainKHR, Result> NewSwapChain() const;
 
@@ -43,19 +39,16 @@ struct VulkanRenderer::Impl {
 
   VulkanRendererConfig cfg_ = {};
 
+  // vulkan members
   GLFWwindow* window_ = nullptr;
-  VkInstance instance_ = VK_NULL_HANDLE;
-  VkSurfaceKHR surface_ = VK_NULL_HANDLE;
+  std::unique_ptr<Instance> instance_;
   std::unique_ptr<PhysicalDevice> physical_device_;
   VkDevice device_ = VK_NULL_HANDLE;
   VkQueue graphics_queue_ = VK_NULL_HANDLE;
   VkQueue present_queue_ = VK_NULL_HANDLE;
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
-#ifndef NDEBUG
-  bool is_validation_layers_enabled_ = false;
-#endif
-
+  // other members
   std::vector<char> buffer_;
   std::vector<double> z_buffer_;
   double screen_ratio_ = 0.0;

@@ -7,6 +7,7 @@ add_library(core
   src/physical_device.cc
   src/rotation.cc
   src/result.cc
+  src/instance.cc
 )
 
 add_subdirectory(tests)
