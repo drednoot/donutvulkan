@@ -69,7 +69,7 @@ std::expected<VkSurfaceKHR, VkResult> Instance::NewSurface(
 }
 
 Instance::~Instance() {
-  if (surface_ && surface_) {
+  if (surface_ && instance_) {
     vkDestroySurfaceKHR(instance_, surface_, nullptr);
   }
 

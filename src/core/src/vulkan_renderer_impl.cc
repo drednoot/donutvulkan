@@ -56,16 +56,18 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
 }
 
 VulkanRenderer::Impl::~Impl() {
-  if (window_) {
-    glfwDestroyWindow(window_);
-  }
-
   if (swap_chain_) {
     vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
   }
 
   if (device_) {
     vkDestroyDevice(device_, nullptr);
+  }
+
+  instance_.reset();
+
+  if (window_) {
+    glfwDestroyWindow(window_);
   }
 
   glfwTerminate();
