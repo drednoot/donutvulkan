@@ -15,14 +15,16 @@
 namespace core {
 
 std::expected<SwapChain*, Result> SwapChain::New(const LogicalDevice& device,
-                                                 const Instance& instance,
                                                  GLFWwindow* window) {
+  const VkSurfaceKHR surface =
+      device.GetPhysicalDevice().GetInstance().GetSurface();
+
   SwapChainSupportDetails swapchain_details = TRY(SwapChainSupportDetails::New(
-      device.GetPhysicalDevice(), instance.GetSurface(), window));
+      device.GetPhysicalDevice(), surface, window));
 
   VkSwapchainCreateInfoKHR create_info{};
   create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-  create_info.surface = instance.GetSurface();
+  create_info.surface = surface;
   create_info.minImageCount = swapchain_details.image_count;
   create_info.imageFormat = swapchain_details.surface_format.format;
   create_info.imageColorSpace = swapchain_details.surface_format.colorSpace;

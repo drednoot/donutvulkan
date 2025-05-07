@@ -14,7 +14,6 @@
 #include <memory>
 #include <thread>
 
-#include "consts.h"
 #include "logical_device.h"
 #include "physical_device.h"
 #include "swap_chain.h"
@@ -36,11 +35,9 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
   window_ = window;
 
   instance_.reset(TRY_RESULT(Instance::New(window_)));
-  physical_device_.reset(
-      TRY_RESULT(PhysicalDevice::New(*instance_, instance_->GetSurface())));
+  physical_device_.reset(TRY_RESULT(PhysicalDevice::New(*instance_)));
   device_.reset(TRY_RESULT(LogicalDevice::New(*physical_device_)));
-
-  swap_chain_.reset(TRY_RESULT(SwapChain::New(*device_, *instance_, window_)));
+  swap_chain_.reset(TRY_RESULT(SwapChain::New(*device_, window_)));
 
   cfg_ = config;
   buffer_.resize(config.width * config.height);

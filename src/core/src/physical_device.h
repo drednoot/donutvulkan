@@ -8,27 +8,27 @@
 
 #include "core/result.h"
 
+#include "instance.h"
 #include "queue_families.h"
-#include "swap_chain_support_details.h"
 
 namespace core {
 
 class PhysicalDevice {
  public:
-  static std::expected<PhysicalDevice*, Result> New(VkInstance instance,
-                                                    VkSurfaceKHR surface);
+  static std::expected<PhysicalDevice*, Result> New(const Instance& instance);
 
   const QueueFamilies& GetQueueFamilies() const;
+  const Instance& GetInstance() const;
   operator VkPhysicalDevice() const;
 
  private:
-  PhysicalDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+  PhysicalDevice(VkPhysicalDevice physical_device, const Instance& instace);
 
   bool IsSuitable();
 
-  VkPhysicalDevice physical_device_;
-  VkSurfaceKHR surface_;
+  VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
   QueueFamilies queue_families_;
+  const Instance& instance_;
 };
 
 }  // namespace core

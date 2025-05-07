@@ -23,10 +23,10 @@ class LogicalDevice {
  private:
   LogicalDevice(const PhysicalDevice& physical_device);
 
-  VkDevice device_;
+  VkDevice device_ = VK_NULL_HANDLE;
+  VkQueue graphics_queue_ = VK_NULL_HANDLE;
+  VkQueue present_queue_ = VK_NULL_HANDLE;
   const PhysicalDevice& physical_device_;
-  VkQueue graphics_queue_;
-  VkQueue present_queue_;
 };
 
 }  // namespace core

@@ -9,13 +9,13 @@
 #include <vector>
 
 #include "consts.h"
+#include "instance.h"
 #include "queue_families.h"
 
 namespace core {
 
 std::expected<PhysicalDevice*, Result> PhysicalDevice::New(
-    VkInstance instance,
-    VkSurfaceKHR surface) {
+    const Instance& instance) {
   uint32_t device_count = 0;
   vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
 
@@ -30,9 +30,10 @@ std::expected<PhysicalDevice*, Result> PhysicalDevice::New(
 
   for (const VkPhysicalDevice& device_handle : devices) {
     std::unique_ptr<PhysicalDevice> device(
-        new PhysicalDevice(device_handle, surface));
+        new PhysicalDevice(device_handle, instance));
 
-    const auto& queue_families_exp = QueueFamilies::New(device_handle, surface);
+    const auto& queue_families_exp =
+        QueueFamilies::New(device_handle, instance.GetSurface());
     if (!queue_families_exp.has_value()) {
       if (queue_families_exp.error().kind == kCoreError &&
           queue_families_exp.error().error.core ==
@@ -61,12 +62,17 @@ const QueueFamilies& PhysicalDevice::GetQueueFamilies() const {
   return queue_families_;
 }
 
+const Instance& PhysicalDevice::GetInstance() const {
+  return instance_;
+}
+
 PhysicalDevice::operator VkPhysicalDevice() const {
   return physical_device_;
 }
 
-PhysicalDevice::PhysicalDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
-    : physical_device_(device), surface_(surface) {}
+PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device,
+                               const Instance& instance)
+    : physical_device_(physical_device), instance_(instance) {}
 
 bool PhysicalDevice::IsSuitable() {
   uint32_t extension_count;

@@ -8,7 +8,6 @@
 
 #include "core/result.h"
 
-#include "instance.h"
 #include "logical_device.h"
 
 namespace core {
@@ -17,7 +16,6 @@ class SwapChain {
  public:
   static std::expected<SwapChain*, Result> New(
       const LogicalDevice& logical_device,
-      const Instance& instance,
       GLFWwindow* window);
   ~SwapChain();
 
