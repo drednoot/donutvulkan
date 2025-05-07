@@ -14,6 +14,7 @@
 #include "instance.h"
 #include "logical_device.h"
 #include "physical_device.h"
+#include "swap_chain.h"
 
 namespace core {
 
@@ -44,7 +45,7 @@ struct VulkanRenderer::Impl {
   std::unique_ptr<Instance> instance_;
   std::unique_ptr<PhysicalDevice> physical_device_;
   std::unique_ptr<LogicalDevice> device_;
-  VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
+  std::unique_ptr<SwapChain> swap_chain_;
 
   // other members
   std::vector<char> buffer_;

@@ -18,10 +18,13 @@ class LogicalDevice {
 
   operator VkDevice() const;
 
+  const PhysicalDevice& GetPhysicalDevice() const;
+
  private:
-  LogicalDevice() = default;
+  LogicalDevice(const PhysicalDevice& physical_device);
 
   VkDevice device_;
+  const PhysicalDevice& physical_device_;
   VkQueue graphics_queue_;
   VkQueue present_queue_;
 };

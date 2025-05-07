@@ -9,6 +9,7 @@ add_library(core
   src/rotation.cc
   src/result.cc
   src/instance.cc
+  src/swap_chain.cc
 )
 
 add_subdirectory(tests)

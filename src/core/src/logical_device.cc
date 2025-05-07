@@ -48,15 +48,15 @@ std::expected<LogicalDevice*, VkResult> LogicalDevice::New(
   TRY_VK_SUCCESS(
       vkCreateDevice(physical_device, &device_create_info, nullptr, &device));
 
-  std::unique_ptr<LogicalDevice> device_instance(new LogicalDevice());
-  device_instance->device_ = device;
+  std::unique_ptr<LogicalDevice> device_ptr(new LogicalDevice(physical_device));
+  device_ptr->device_ = device;
 
   vkGetDeviceQueue(device, physical_device.GetQueueFamilies().graphics, 0,
-                   &device_instance->graphics_queue_);
+                   &device_ptr->graphics_queue_);
   vkGetDeviceQueue(device, physical_device.GetQueueFamilies().present, 0,
-                   &device_instance->present_queue_);
+                   &device_ptr->present_queue_);
 
-  return device_instance.release();
+  return device_ptr.release();
 }
 
 LogicalDevice::~LogicalDevice() {
@@ -68,5 +68,12 @@ LogicalDevice::~LogicalDevice() {
 LogicalDevice::operator VkDevice() const {
   return device_;
 }
+
+const PhysicalDevice& LogicalDevice::GetPhysicalDevice() const {
+  return physical_device_;
+}
+
+LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device)
+    : physical_device_(physical_device) {}
 
 }  // namespace core

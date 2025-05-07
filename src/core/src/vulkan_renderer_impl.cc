@@ -17,6 +17,7 @@
 #include "consts.h"
 #include "logical_device.h"
 #include "physical_device.h"
+#include "swap_chain.h"
 #include "swap_chain_support_details.h"
 
 namespace core {
@@ -39,7 +40,7 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
       TRY_RESULT(PhysicalDevice::New(*instance_, instance_->GetSurface())));
   device_.reset(TRY_RESULT(LogicalDevice::New(*physical_device_)));
 
-  swap_chain_ = TRY_RESULT(NewSwapChain());
+  swap_chain_.reset(TRY_RESULT(SwapChain::New(*device_, *instance_, window_)));
 
   cfg_ = config;
   buffer_.resize(config.width * config.height);
@@ -52,10 +53,7 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
 }
 
 VulkanRenderer::Impl::~Impl() {
-  if (swap_chain_) {
-    vkDestroySwapchainKHR(*device_, swap_chain_, nullptr);
-  }
-
+  swap_chain_.reset();
   device_.reset();
   instance_.reset();
 
