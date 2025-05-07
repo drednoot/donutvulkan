@@ -19,7 +19,7 @@ class PhysicalDevice {
                                                     VkSurfaceKHR surface);
 
   const QueueFamilies& GetQueueFamilies() const;
-  operator const VkPhysicalDevice&() const;
+  operator VkPhysicalDevice() const;
 
  private:
   PhysicalDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

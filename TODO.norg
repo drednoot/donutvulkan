@@ -1,7 +1,7 @@
 * donutvulkan
 ** (x) Instance wrapper:
    - contains VkInstance and VkSurfaceKHR
-** (-) Logical Device wrapper
+** (x) Logical Device wrapper
    - contains VkQueues
 ** ( ) Swap Chain wrapper
    - contains swap chain, images and swap chain support details

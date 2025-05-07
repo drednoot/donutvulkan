@@ -12,10 +12,10 @@
 #include <expected>
 #include <iostream>
 #include <memory>
-#include <set>
 #include <thread>
 
 #include "consts.h"
+#include "logical_device.h"
 #include "physical_device.h"
 #include "swap_chain_support_details.h"
 
@@ -37,11 +37,7 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
   instance_.reset(TRY_RESULT(Instance::New(window_)));
   physical_device_.reset(
       TRY_RESULT(PhysicalDevice::New(*instance_, instance_->GetSurface())));
-  device_ = TRY_RESULT(NewLogicalDevice());
-  vkGetDeviceQueue(device_, physical_device_->GetQueueFamilies().graphics, 0,
-                   &graphics_queue_);
-  vkGetDeviceQueue(device_, physical_device_->GetQueueFamilies().present, 0,
-                   &present_queue_);
+  device_.reset(TRY_RESULT(LogicalDevice::New(*physical_device_)));
 
   swap_chain_ = TRY_RESULT(NewSwapChain());
 
@@ -57,13 +53,10 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
 
 VulkanRenderer::Impl::~Impl() {
   if (swap_chain_) {
-    vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
+    vkDestroySwapchainKHR(*device_, swap_chain_, nullptr);
   }
 
-  if (device_) {
-    vkDestroyDevice(device_, nullptr);
-  }
-
+  device_.reset();
   instance_.reset();
 
   if (window_) {
@@ -71,44 +64,6 @@ VulkanRenderer::Impl::~Impl() {
   }
 
   glfwTerminate();
-}
-
-std::expected<VkDevice, VkResult> VulkanRenderer::Impl::NewLogicalDevice()
-    const {
-  VkPhysicalDeviceFeatures device_features{};
-
-  VkDeviceCreateInfo device_create_info{};
-  device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-  std::set<uint32_t> unique_queue_families = {
-      physical_device_->GetQueueFamilies().graphics,
-      physical_device_->GetQueueFamilies().present};
-  std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
-  queue_create_infos.reserve(unique_queue_families.size());
-
-  for (uint32_t queue_family_index : unique_queue_families) {
-    VkDeviceQueueCreateInfo queue_create_info{};
-    queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_create_info.queueFamilyIndex = queue_family_index;
-    queue_create_info.queueCount = 1;
-
-    const float queue_priority = 1.0f;
-    queue_create_info.pQueuePriorities = &queue_priority;
-    queue_create_infos.push_back(std::move(queue_create_info));
-  }
-
-  device_create_info.pQueueCreateInfos = queue_create_infos.data();
-  device_create_info.queueCreateInfoCount = queue_create_infos.size();
-
-  device_create_info.pEnabledFeatures = &device_features;
-  device_create_info.enabledExtensionCount = consts::kDeviceExtensions.size();
-  device_create_info.ppEnabledExtensionNames = consts::kDeviceExtensions.data();
-
-  VkDevice device;
-  TRY_VK_SUCCESS(
-      vkCreateDevice(*physical_device_, &device_create_info, nullptr, &device));
-
-  return device;
 }
 
 std::expected<VkSwapchainKHR, Result> VulkanRenderer::Impl::NewSwapChain()
@@ -147,7 +102,7 @@ std::expected<VkSwapchainKHR, Result> VulkanRenderer::Impl::NewSwapChain()
 
   VkSwapchainKHR swap_chain;
   TRY_VK_SUCCESS(
-      vkCreateSwapchainKHR(device_, &create_info, nullptr, &swap_chain));
+      vkCreateSwapchainKHR(*device_, &create_info, nullptr, &swap_chain));
 
   return swap_chain;
 }

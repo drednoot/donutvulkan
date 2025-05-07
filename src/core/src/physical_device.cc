@@ -10,7 +10,6 @@
 
 #include "consts.h"
 #include "queue_families.h"
-#include "swap_chain_support_details.h"
 
 namespace core {
 
@@ -62,7 +61,7 @@ const QueueFamilies& PhysicalDevice::GetQueueFamilies() const {
   return queue_families_;
 }
 
-PhysicalDevice::operator const VkPhysicalDevice&() const {
+PhysicalDevice::operator VkPhysicalDevice() const {
   return physical_device_;
 }
 

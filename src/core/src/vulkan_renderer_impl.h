@@ -12,6 +12,7 @@
 #include "core/vulkan_renderer.h"
 
 #include "instance.h"
+#include "logical_device.h"
 #include "physical_device.h"
 
 namespace core {
@@ -27,7 +28,6 @@ struct VulkanRenderer::Impl {
 
   // vulkan stuff
   std::expected<VkInstance, VkResult> NewVkInstance();
-  std::expected<VkDevice, VkResult> NewLogicalDevice() const;
   std::expected<VkSwapchainKHR, Result> NewSwapChain() const;
 
   // other stuff
@@ -43,9 +43,7 @@ struct VulkanRenderer::Impl {
   GLFWwindow* window_ = nullptr;
   std::unique_ptr<Instance> instance_;
   std::unique_ptr<PhysicalDevice> physical_device_;
-  VkDevice device_ = VK_NULL_HANDLE;
-  VkQueue graphics_queue_ = VK_NULL_HANDLE;
-  VkQueue present_queue_ = VK_NULL_HANDLE;
+  std::unique_ptr<LogicalDevice> device_;
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
   // other members

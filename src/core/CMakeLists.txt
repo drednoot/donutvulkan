@@ -5,6 +5,7 @@ add_library(core
   src/vulkan_renderer.cc
   src/queue_families.cc
   src/physical_device.cc
+  src/logical_device.cc
   src/rotation.cc
   src/result.cc
   src/instance.cc
