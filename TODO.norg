@@ -3,5 +3,5 @@
    - contains VkInstance and VkSurfaceKHR
 ** (x) Logical Device wrapper
    - contains VkQueues
-** ( ) Swap Chain wrapper
+** (x) Swap Chain wrapper
    - contains swap chain, images and swap chain support details
