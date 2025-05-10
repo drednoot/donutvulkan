@@ -22,6 +22,9 @@ std::expected<SwapChain*, Result> SwapChain::New(const LogicalDevice& device,
   SwapChainSupportDetails swapchain_details = TRY(SwapChainSupportDetails::New(
       device.GetPhysicalDevice(), surface, window));
 
+  std::unique_ptr<SwapChain> swap_chain_ptr(new SwapChain(device));
+  swap_chain_ptr->details_ = swapchain_details;
+
   VkSwapchainCreateInfoKHR create_info{};
   create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
   create_info.surface = surface;
@@ -55,9 +58,14 @@ std::expected<SwapChain*, Result> SwapChain::New(const LogicalDevice& device,
   VkSwapchainKHR swap_chain;
   TRY_VK_SUCCESS(
       vkCreateSwapchainKHR(device, &create_info, nullptr, &swap_chain));
-
-  std::unique_ptr<SwapChain> swap_chain_ptr(new SwapChain(device));
   swap_chain_ptr->swap_chain_ = swap_chain;
+
+  TRY_VK_SUCCESS(vkGetSwapchainImagesKHR(
+      device, swap_chain, &swap_chain_ptr->details_.image_count, nullptr));
+  swap_chain_ptr->images_.resize(swap_chain_ptr->details_.image_count);
+  TRY_VK_SUCCESS(vkGetSwapchainImagesKHR(device, swap_chain,
+                                         &swap_chain_ptr->details_.image_count,
+                                         swap_chain_ptr->images_.data()));
 
   return swap_chain_ptr.release();
 }
@@ -66,6 +74,14 @@ SwapChain::~SwapChain() {
   if (swap_chain_) {
     vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
   }
+}
+
+SwapChain::operator VkSwapchainKHR() const {
+  return swap_chain_;
+}
+
+const SwapChainSupportDetails& SwapChain::Details() const {
+  return details_;
 }
 
 SwapChain::SwapChain(const LogicalDevice& device) : device_(device) {}
