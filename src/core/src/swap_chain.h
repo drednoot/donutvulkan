@@ -27,9 +27,12 @@ class SwapChain {
  private:
   SwapChain(const LogicalDevice& device);
 
+  VkResult NewImageViews();
+
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
   SwapChainSupportDetails details_;
   std::vector<VkImage> images_;
+  std::vector<VkImageView> image_views_;
   const LogicalDevice& device_;
 };
 
