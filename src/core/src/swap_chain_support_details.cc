@@ -18,12 +18,12 @@ std::expected<SwapChainSupportDetails, Result> SwapChainSupportDetails::New(
     GLFWwindow* window) {
   SwapChainSupportDetails details{};
 
-  TRY_VK_SUCCESS(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-      physical_device, surface, &details.capabilities));
+  TRY(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface,
+                                                &details.capabilities));
 
   uint32_t format_count;
-  TRY_VK_SUCCESS(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface,
-                                                      &format_count, nullptr));
+  TRY(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface,
+                                           &format_count, nullptr));
   if (format_count < 1) {
     return std::unexpected(Result(CoreError::kNoAvailableSurfaceFormats));
   }
@@ -33,8 +33,8 @@ std::expected<SwapChainSupportDetails, Result> SwapChainSupportDetails::New(
   details.surface_format = GetSwapSurfaceFormat(formats);
 
   uint32_t present_mode_count;
-  TRY_VK_SUCCESS(vkGetPhysicalDeviceSurfacePresentModesKHR(
-      physical_device, surface, &present_mode_count, nullptr));
+  TRY(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface,
+                                                &present_mode_count, nullptr));
   if (present_mode_count < 1) {
     return std::unexpected(Result(CoreError::kNoAvailableSurfacePresentModes));
   }

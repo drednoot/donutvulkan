@@ -19,8 +19,9 @@ std::expected<SwapChain*, Result> SwapChain::New(const LogicalDevice& device,
   const VkSurfaceKHR surface =
       device.GetPhysicalDevice().GetInstance().GetSurface();
 
-  SwapChainSupportDetails swapchain_details = TRY(SwapChainSupportDetails::New(
-      device.GetPhysicalDevice(), surface, window));
+  SwapChainSupportDetails swapchain_details =
+      UNWRAP(SwapChainSupportDetails::New(device.GetPhysicalDevice(), surface,
+                                          window));
 
   std::unique_ptr<SwapChain> swap_chain_ptr(new SwapChain(device));
   swap_chain_ptr->details_ = swapchain_details;
@@ -56,16 +57,17 @@ std::expected<SwapChain*, Result> SwapChain::New(const LogicalDevice& device,
   create_info.oldSwapchain = VK_NULL_HANDLE;
 
   VkSwapchainKHR swap_chain;
-  TRY_VK_SUCCESS(
-      vkCreateSwapchainKHR(device, &create_info, nullptr, &swap_chain));
+  TRY(vkCreateSwapchainKHR(device, &create_info, nullptr, &swap_chain));
   swap_chain_ptr->swap_chain_ = swap_chain;
 
-  TRY_VK_SUCCESS(vkGetSwapchainImagesKHR(
-      device, swap_chain, &swap_chain_ptr->details_.image_count, nullptr));
+  TRY(vkGetSwapchainImagesKHR(device, swap_chain,
+                              &swap_chain_ptr->details_.image_count, nullptr));
   swap_chain_ptr->images_.resize(swap_chain_ptr->details_.image_count);
-  TRY_VK_SUCCESS(vkGetSwapchainImagesKHR(device, swap_chain,
-                                         &swap_chain_ptr->details_.image_count,
-                                         swap_chain_ptr->images_.data()));
+  TRY(vkGetSwapchainImagesKHR(device, swap_chain,
+                              &swap_chain_ptr->details_.image_count,
+                              swap_chain_ptr->images_.data()));
+
+  TRY(swap_chain_ptr->NewImageViews());
 
   return swap_chain_ptr.release();
 }

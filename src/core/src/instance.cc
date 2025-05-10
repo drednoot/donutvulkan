@@ -13,8 +13,8 @@ namespace core {
 std::expected<Instance*, Result> Instance::New(GLFWwindow* window) {
   std::unique_ptr<Instance> instance(new Instance());
 
-  instance->instance_ = TRY(instance->NewVkInstance());
-  instance->surface_ = TRY(instance->NewSurface(window));
+  instance->instance_ = UNWRAP(instance->NewVkInstance());
+  instance->surface_ = UNWRAP(instance->NewSurface(window));
 
   return instance.release();
 }
@@ -42,7 +42,7 @@ std::expected<VkInstance, VkResult> Instance::NewVkInstance() {
 
 #ifndef NDEBUG
   const std::vector<const char*>& available_layers =
-      TRY(GetAvailableValidationLayers());
+      UNWRAP(GetAvailableValidationLayers());
   create_info.enabledLayerCount = available_layers.size();
   create_info.ppEnabledLayerNames = available_layers.data();
   if (!available_layers.empty()) {
@@ -55,7 +55,7 @@ std::expected<VkInstance, VkResult> Instance::NewVkInstance() {
 #endif
 
   VkInstance instance;
-  TRY_VK_SUCCESS(vkCreateInstance(&create_info, nullptr, &instance));
+  TRY(vkCreateInstance(&create_info, nullptr, &instance));
 
   return instance;
 }
@@ -63,7 +63,7 @@ std::expected<VkInstance, VkResult> Instance::NewVkInstance() {
 std::expected<VkSurfaceKHR, VkResult> Instance::NewSurface(
     GLFWwindow* window) const {
   VkSurfaceKHR surface;
-  TRY_VK_SUCCESS(glfwCreateWindowSurface(instance_, window, nullptr, &surface));
+  TRY(glfwCreateWindowSurface(instance_, window, nullptr, &surface));
 
   return surface;
 }
@@ -86,10 +86,10 @@ Instance::GetAvailableValidationLayers() {
   std::vector<const char*> enabled_layer_names;
 
   uint32_t layer_count;
-  TRY_VK_SUCCESS(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
+  TRY(vkEnumerateInstanceLayerProperties(&layer_count, nullptr));
   std::vector<VkLayerProperties> layers_available(layer_count);
-  TRY_VK_SUCCESS(vkEnumerateInstanceLayerProperties(&layer_count,
-                                                    layers_available.data()));
+  TRY(vkEnumerateInstanceLayerProperties(&layer_count,
+                                         layers_available.data()));
 
   for (const char* layer_name : validation_layers) {
     bool found = false;

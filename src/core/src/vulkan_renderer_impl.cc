@@ -7,8 +7,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <array>
-#include <cmath>
-#include <cstring>
 #include <expected>
 #include <iostream>
 #include <memory>
@@ -34,10 +32,10 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
   }
   window_ = window;
 
-  instance_.reset(TRY_RESULT(Instance::New(window_)));
-  physical_device_.reset(TRY_RESULT(PhysicalDevice::New(*instance_)));
-  device_.reset(TRY_RESULT(LogicalDevice::New(*physical_device_)));
-  swap_chain_.reset(TRY_RESULT(SwapChain::New(*device_, window_)));
+  instance_.reset(UNWRAP_ERR(Instance::New(window_)));
+  physical_device_.reset(UNWRAP_ERR(PhysicalDevice::New(*instance_)));
+  device_.reset(UNWRAP_ERR(LogicalDevice::New(*physical_device_)));
+  swap_chain_.reset(UNWRAP_ERR(SwapChain::New(*device_, window_)));
 
   cfg_ = config;
   buffer_.resize(config.width * config.height);
@@ -63,8 +61,9 @@ VulkanRenderer::Impl::~Impl() {
 
 std::expected<VkSwapchainKHR, Result> VulkanRenderer::Impl::NewSwapChain()
     const {
-  SwapChainSupportDetails swapchain_details = TRY(SwapChainSupportDetails::New(
-      *physical_device_, instance_->GetSurface(), window_));
+  SwapChainSupportDetails swapchain_details =
+      UNWRAP(SwapChainSupportDetails::New(*physical_device_,
+                                          instance_->GetSurface(), window_));
 
   VkSwapchainCreateInfoKHR create_info{};
   create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -96,8 +95,7 @@ std::expected<VkSwapchainKHR, Result> VulkanRenderer::Impl::NewSwapChain()
   create_info.oldSwapchain = VK_NULL_HANDLE;
 
   VkSwapchainKHR swap_chain;
-  TRY_VK_SUCCESS(
-      vkCreateSwapchainKHR(*device_, &create_info, nullptr, &swap_chain));
+  TRY(vkCreateSwapchainKHR(*device_, &create_info, nullptr, &swap_chain));
 
   return swap_chain;
 }

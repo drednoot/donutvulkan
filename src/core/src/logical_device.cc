@@ -45,8 +45,7 @@ std::expected<LogicalDevice*, VkResult> LogicalDevice::New(
   device_create_info.ppEnabledExtensionNames = consts::kDeviceExtensions.data();
 
   VkDevice device;
-  TRY_VK_SUCCESS(
-      vkCreateDevice(physical_device, &device_create_info, nullptr, &device));
+  TRY(vkCreateDevice(physical_device, &device_create_info, nullptr, &device));
 
   std::unique_ptr<LogicalDevice> device_ptr(new LogicalDevice(physical_device));
   device_ptr->device_ = device;

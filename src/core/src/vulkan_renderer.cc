@@ -17,7 +17,7 @@ std::expected<VulkanRenderer*, Result> VulkanRenderer::New(
     const VulkanRendererConfig& config) {
   std::unique_ptr<VulkanRenderer> rend(new VulkanRenderer);
 
-  TRY_RESULT_NO_ERROR(rend->d->New(config));
+  TRY(rend->d->New(config));
 
   return rend.release();
 }

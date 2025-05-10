@@ -50,7 +50,12 @@ struct Result {
 
 const char* ResultToString(Result r);
 
-#define TRY(expr)                          \
+/*
+ * checks std::expected for unexpected
+ * returns std::unextpected
+ * evaluates to expected value
+ */
+#define UNWRAP(expr)                       \
   ({                                       \
     const auto& exp = expr;                \
     if (!exp) {                            \
@@ -59,23 +64,12 @@ const char* ResultToString(Result r);
     *exp;                                  \
   })
 
-#define TRY_VK_SUCCESS(expr)       \
-  {                                \
-    VkResult res = expr;           \
-    if (res != VK_SUCCESS) {       \
-      return std::unexpected(res); \
-    }                              \
-  }
-
-#define TRY_RESULT_NO_ERROR(expr)                 \
-  {                                               \
-    Result res = expr;                            \
-    if (res.kind != core::ResultKind::kNoError) { \
-      return std::unexpected(res);                \
-    }                                             \
-  }
-
-#define TRY_RESULT(expr)    \
+/*
+ * checks std::expected for unexpected
+ * returns error of std::expected
+ * evaluates to expected value
+ */
+#define UNWRAP_ERR(expr)    \
   ({                        \
     const auto& exp = expr; \
     if (!exp) {             \
@@ -83,6 +77,32 @@ const char* ResultToString(Result r);
     }                       \
     *exp;                   \
   })
+
+/*
+ * checks function for nonzero return
+ * pushes the return value up on the stack as std::expected
+ * does nothing on nonzero
+ */
+#define TRY(expr)                  \
+  {                                \
+    const auto exp = expr;         \
+    if (exp) {                     \
+      return std::unexpected(exp); \
+    }                              \
+  }
+
+/*
+ * checks function for nonzero return
+ * pushes the return value up on the stack
+ * does nothing on nonzero
+ */
+#define TRY_ERR(expr)      \
+  {                        \
+    const auto exp = expr; \
+    if (exp) {             \
+      return exp;          \
+    }                      \
+  }
 
 }  // namespace core
 

@@ -1,7 +1,6 @@
 #include "renderer.h"
 
 #include <algorithm>
-#include <cmath>
 #include <expected>
 #include <memory>
 
@@ -23,7 +22,7 @@ std::expected<Renderer*, core::Result> Renderer::New() {
       .render_handler = rend.get(),
   };
 
-  rend->renderer_.reset(TRY(core::VulkanRenderer::New(config)));
+  rend->renderer_.reset(UNWRAP(core::VulkanRenderer::New(config)));
   rend->donut_ = Donut(config::kDonutMajorR, config::kDonutMinorR,
                        config::kDonutPrecision);
   rend->angle_ = 0.0;
