@@ -73,6 +73,10 @@ std::expected<SwapChain*, Result> SwapChain::New(const LogicalDevice& device,
 }
 
 SwapChain::~SwapChain() {
+  for (const VkImageView image_view : image_views_) {
+    vkDestroyImageView(device_, image_view, nullptr);
+  }
+
   if (swap_chain_) {
     vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
   }
