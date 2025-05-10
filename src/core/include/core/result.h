@@ -104,6 +104,32 @@ const char* ResultToString(Result r);
     }                      \
   }
 
+/*
+ * checks function for good Result return
+ * pushes the return value up on the stack as std::expected
+ * does nothing on good value
+ */
+#define TRY_RS(expr)               \
+  {                                \
+    core::Result res = expr;       \
+    if (!res) {                    \
+      return std::unexpected(res); \
+    }                              \
+  }
+
+/*
+ * checks function for good Result return
+ * pushes the return value up on the stack
+ * does nothing on good value
+ */
+#define TRY_RS_ERR(expr)     \
+  {                          \
+    core::Result res = expr; \
+    if (!res) {              \
+      return res;            \
+    }                        \
+  }
+
 }  // namespace core
 
 #endif  // DONUTCPP_CORE_RESULT_H_
