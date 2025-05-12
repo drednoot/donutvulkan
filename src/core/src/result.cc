@@ -2,9 +2,11 @@
 
 #include <vulkan/vk_enum_string_helper.h>
 
+#include <string>
+
 namespace core {
 
-const char* CoreErrorToString(CoreError e) {
+const std::string CoreErrorToString(CoreError e) {
   switch (e) {
     case kCouldNotInitializeGlfwWindow:
       return "Could not initialize GLFW Window";
@@ -22,7 +24,7 @@ const char* CoreErrorToString(CoreError e) {
   }
 }
 
-const char* ResultToString(Result r) {
+const std::string ResultToString(Result r) {
   switch (r.kind) {
     case kNoError:
       return "No error";
@@ -30,6 +32,8 @@ const char* ResultToString(Result r) {
       return CoreErrorToString(r.error.core);
     case kVkError:
       return string_VkResult(r.error.vk);
+    case kFileError:
+      return std::string("Could not open file: ") + r.error.file.filename;
     default:
       return "Unknown Result type";
   }

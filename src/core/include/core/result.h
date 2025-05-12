@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <expected>
+#include <string>
 
 namespace core {
 
@@ -12,6 +13,7 @@ enum ResultKind {
   kNoError = 0,
   kCoreError,
   kVkError,
+  kFileError,
 };
 
 struct NoError {};
@@ -25,7 +27,11 @@ enum CoreError {
   kNoAvailableSurfacePresentModes,
 };
 
-const char* CoreErrorToString(CoreError e);
+struct FileError {
+  const char* filename;
+};
+
+const std::string CoreErrorToString(CoreError e);
 
 /**
  * Result type is used to have the result of an operation.
@@ -37,6 +43,8 @@ struct Result {
   Result(CoreError core_error)
       : kind(kCoreError), error({.core = core_error}) {}
   Result(VkResult vk_error) : kind(kVkError), error({.vk = vk_error}) {}
+  Result(FileError file_error)
+      : kind(kFileError), error({.file = file_error}) {}
 
   operator bool() const { return kind == kNoError; };
 
@@ -45,10 +53,11 @@ struct Result {
     NoError no_error;
     CoreError core;
     VkResult vk;
+    FileError file;
   } error;
 };
 
-const char* ResultToString(Result r);
+const std::string ResultToString(Result r);
 
 /*
  * checks std::expected for unexpected

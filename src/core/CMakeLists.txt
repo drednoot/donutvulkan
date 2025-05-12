@@ -12,6 +12,11 @@ add_library(core
   src/swap_chain.cc
 )
 
+add_spirv_shaders(core
+  src/shaders/shader.vert
+  src/shaders/shader.frag
+)
+
 add_subdirectory(tests)
 
 target_include_directories(core

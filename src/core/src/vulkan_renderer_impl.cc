@@ -6,16 +6,17 @@
 
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <array>
 #include <expected>
+#include <fstream>
+#include <ios>
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <vector>
 
 #include "logical_device.h"
 #include "physical_device.h"
 #include "swap_chain.h"
-#include "swap_chain_support_details.h"
 
 namespace core {
 
@@ -36,6 +37,7 @@ Result VulkanRenderer::Impl::New(const VulkanRendererConfig& config) {
   physical_device_.reset(UNWRAP_ERR(PhysicalDevice::New(*instance_)));
   device_.reset(UNWRAP_ERR(LogicalDevice::New(*physical_device_)));
   swap_chain_.reset(UNWRAP_ERR(SwapChain::New(*device_, window_)));
+  TRY_RS_ERR(CreateGraphicsPipeline());
 
   cfg_ = config;
   buffer_.resize(config.width * config.height);
@@ -59,45 +61,33 @@ VulkanRenderer::Impl::~Impl() {
   glfwTerminate();
 }
 
-std::expected<VkSwapchainKHR, Result> VulkanRenderer::Impl::NewSwapChain()
-    const {
-  SwapChainSupportDetails swapchain_details =
-      UNWRAP(SwapChainSupportDetails::New(*physical_device_,
-                                          instance_->GetSurface(), window_));
+std::expected<std::vector<char>, Result> VulkanRenderer::Impl::ReadFile(
+    const char* filename) {
+  std::fstream file(filename, std::ios::ate | std::ios::binary);
 
-  VkSwapchainCreateInfoKHR create_info{};
-  create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-  create_info.surface = instance_->GetSurface();
-  create_info.minImageCount = swapchain_details.image_count;
-  create_info.imageFormat = swapchain_details.surface_format.format;
-  create_info.imageColorSpace = swapchain_details.surface_format.colorSpace;
-  create_info.imageExtent = swapchain_details.extent;
-  create_info.imageArrayLayers = 1;
-  create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-  const QueueFamilies& queue_families = physical_device_->GetQueueFamilies();
-  const std::array<uint32_t, 2>& queue_family_indices =
-      queue_families.GetIndices();
-  if (queue_families.graphics != queue_families.present) {
-    create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-    create_info.queueFamilyIndexCount = queue_family_indices.size();
-    create_info.pQueueFamilyIndices = queue_family_indices.data();
-  } else {
-    create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    create_info.queueFamilyIndexCount = 0;
-    create_info.pQueueFamilyIndices = nullptr;
+  if (!file.is_open()) {
+    return std::unexpected(FileError{filename});
   }
 
-  create_info.preTransform = swapchain_details.capabilities.currentTransform;
-  create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-  create_info.presentMode = swapchain_details.present_mode;
-  create_info.clipped = VK_TRUE;
-  create_info.oldSwapchain = VK_NULL_HANDLE;
+  size_t file_size = (size_t)file.tellg();
+  std::vector<char> buf(file_size);
 
-  VkSwapchainKHR swap_chain;
-  TRY(vkCreateSwapchainKHR(*device_, &create_info, nullptr, &swap_chain));
+  file.seekg(0);
+  file.read(buf.data(), file_size);
 
-  return swap_chain;
+  return buf;
+}
+
+Result VulkanRenderer::Impl::CreateGraphicsPipeline() const {
+  const std::vector<char> vert_shader =
+      UNWRAP_ERR(ReadFile("shaders/shader.vert.spv"));
+  const std::vector<char> frag_shader =
+      UNWRAP_ERR(ReadFile("shaders/shader.frag.spv"));
+
+  std::cout << vert_shader.size();
+  std::cout << frag_shader.size();
+
+  return Result();
 }
 
 void VulkanRenderer::Impl::Start() {

@@ -14,6 +14,9 @@ add_compile_options(-Wall -Wextra -Wpedantic -Wswitch-enum -Wno-gnu-statement-ex
 include(cmake/doctest.cmake)
 enable_testing()
 
+# SPIR-V compilation
+include(cmake/CompileShaders.cmake)
+
 # Add executable
 add_executable(donutvulkan
     src/app/main.cc

@@ -28,8 +28,9 @@ struct VulkanRenderer::Impl {
   ~Impl();
 
   // vulkan stuff
-  std::expected<VkInstance, VkResult> NewVkInstance();
-  std::expected<VkSwapchainKHR, Result> NewSwapChain() const;
+  static std::expected<std::vector<char>, Result> ReadFile(
+      const char* filename);
+  Result CreateGraphicsPipeline() const;
 
   // other stuff
   void Start();
