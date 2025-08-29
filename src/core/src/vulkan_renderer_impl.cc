@@ -63,7 +63,7 @@ VulkanRenderer::Impl::~Impl() {
 
 std::expected<std::vector<char>, Result> VulkanRenderer::Impl::ReadFile(
     const char* filename) {
-  std::fstream file(filename, std::ios::ate | std::ios::binary);
+  std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
   if (!file.is_open()) {
     return std::unexpected(FileError{filename});
