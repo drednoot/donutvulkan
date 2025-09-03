@@ -29,10 +29,13 @@ add_executable(donutvulkan
 target_include_directories(donutvulkan PRIVATE src)
 
 add_subdirectory(src/core)
-add_dependencies(donutvulkan core)
+add_subdirectory(src/allocator)
+add_dependencies(donutvulkan core allocator)
+
 
 target_link_libraries(donutvulkan
   PRIVATE
   core
+  allocator
   m
 )
