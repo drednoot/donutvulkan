@@ -27,13 +27,14 @@ auto Arena::Alloc(uint32_t size) -> void* {
     return nullptr;
   }
 
-  if (LastBlockCapacity() - size_ > size) {
+  if (LastBlockCapacity() - size_ >= size) {
+    if (!last_block_) {
+      AllocatePages(1);
+    }
     void* const location =
         reinterpret_cast<uint8_t*>(last_block_->start) + size_;
     size_ += size;
     return location;
-  } else if (LastBlockCapacity() - size_ == size) {
-    return reinterpret_cast<uint8_t*>(last_block_->start) + size_;
   } else {
     const uint32_t page_size = PageSize();
     const uint32_t needed_pages_raw = size / page_size;
@@ -83,7 +84,9 @@ auto Arena::PageSize() const -> uint32_t {
 }
 
 auto Arena::LastBlockCapacity() const -> uint32_t {
-  return last_block_ ? PageSize() * last_block_->page_count - sizeof(Block) : 0;
+  const auto page_size = PageSize();
+  return last_block_ ? page_size * last_block_->page_count - sizeof(Block)
+                     : page_size - sizeof(Block);
 }
 
 }  // namespace allocator
