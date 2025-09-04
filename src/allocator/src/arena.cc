@@ -73,7 +73,7 @@ auto Arena::AllocatePages(uint32_t count) -> void {
   if (last_block_) {
     last_block_->next = reinterpret_cast<Block*>(block_start);
   } else {
-    start_ = last_block_;
+    start_ = reinterpret_cast<Block*>(block_start);
   }
   last_block_ = reinterpret_cast<Block*>(block_start);
   size_ = 0;
