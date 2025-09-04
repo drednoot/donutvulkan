@@ -17,7 +17,11 @@ class Arena {
 
   template <typename T>
   auto Alloc() -> T* {
-    return Alloc(sizeof(T));
+    return reinterpret_cast<T*>(Alloc(sizeof(T)));
+  }
+  template <typename T>
+  auto Alloc(uint32_t count) -> T* {
+    return reinterpret_cast<T*>(Alloc(count * sizeof(T)));
   }
   auto Alloc(uint32_t size) -> void*;
 
