@@ -3,7 +3,7 @@ add_library(allocator
   src/arena.cc
 )
 
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 target_include_directories(allocator
   PUBLIC
