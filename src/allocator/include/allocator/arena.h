@@ -36,7 +36,6 @@ class Arena {
   auto LastBlockCapacity() const -> uint32_t;
 
   auto PageSize() const -> uint32_t;
-  auto AllocCommand() const -> void*;
 
   Block* start_ = nullptr;
   Block* last_block_ = nullptr;
