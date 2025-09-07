@@ -58,3 +58,17 @@ TEST_CASE("Allocating a page worth") {
 
   CHECK_EQ(mincore(Align(p), kPageSize * kExpectedPages, vec), 0);
 }
+
+TEST_CASE("Allocating half a page and then entire page") {
+  Arena a;
+  const int kExpectedPages1 = 1;
+  const int kExpectedPages2 = 2;
+  unsigned char vec1[kExpectedPages1];
+  unsigned char vec2[kExpectedPages2];
+
+  auto* p1 = a.Alloc(kPageSize / 2);
+  auto* p2 = a.Alloc(kPageSize);
+
+  CHECK_EQ(mincore(Align(p1), kPageSize * kExpectedPages1, vec1), 0);
+  CHECK_EQ(mincore(Align(p2), kPageSize * kExpectedPages2, vec2), 0);
+}
